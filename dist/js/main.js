@@ -2,7 +2,7 @@ import { draw, drawInner, decor } from './art.js';
 import { CATS, PRODUCTS, PRODUCT, SEP, bundleFull, ROOM_SET, ZONES, ASSEMBLY_FEE, STORE } from './data.js';
 import { DICT } from './i18n.js';
 import { initStudio } from './studio.js';
-import { enhanceSelects, syncDropdowns, initTips, initCursor } from './ui.js';
+import { enhanceSelects, syncDropdowns, initTips, initPointer } from './ui.js';
 /* ---------- helpers ---------- */
 const $ = (s, root = document) => root.querySelector(s);
 const $$ = (s, root = document) => Array.from(root.querySelectorAll(s));
@@ -1212,7 +1212,7 @@ function boot() {
     enhanceSelects();
     syncDropdowns();
     initTips();
-    initCursor(t);
+    initPointer(t);
     const openShared = () => { const m = location.hash.match(/^#studio=([\w.~-]{1,2000})$/); if (!m)
         return; try {
         history.replaceState(history.state, '', location.pathname + location.search);

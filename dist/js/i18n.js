@@ -1,4 +1,5 @@
 const uz = {
+    'cur.drag': 'Surish',
     'cur.view': 'Koʻrish',
     'cur.try': 'Sinab koʻrish',
     'cur.open': 'Ochish',
@@ -123,6 +124,7 @@ const uz = {
     'wd.0': 'yakshanba', 'wd.1': 'dushanba', 'wd.2': 'seshanba', 'wd.3': 'chorshanba', 'wd.4': 'payshanba', 'wd.5': 'juma', 'wd.6': 'shanba',
 };
 const ru = {
+    'cur.drag': 'Двигать',
     'cur.view': 'Смотреть',
     'cur.try': 'Попробовать',
     'cur.open': 'Открыть',
@@ -247,6 +249,7 @@ const ru = {
     'wd.0': 'воскресенье', 'wd.1': 'понедельник', 'wd.2': 'вторник', 'wd.3': 'среда', 'wd.4': 'четверг', 'wd.5': 'пятница', 'wd.6': 'суббота',
 };
 const en = {
+    'cur.drag': 'Drag',
     'cur.view': 'View',
     'cur.try': 'Try it',
     'cur.open': 'Open',

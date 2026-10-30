@@ -737,46 +737,39 @@ input[type="search"]::-webkit-search-cancel-button, input[type="search"]::-webki
 :root[data-theme="dark"] .tip { background: #ECEEF5; color: #141A33; }
 
 /* =================== CUSTOM CURSOR =================== */
-/* the pointer is a tufted upholstery button; the trailing ring is its stitching */
+/* a small upholstery button under the mouse, and a soft outline that settles on what you're about to use */
 :root { --cur-btn: radial-gradient(circle at 34% 30%, #5A67A8 0, #26306A 45%, #141A3F 100%); --cur-edge: rgba(248, 249, 246, .95); --cur-stitch: #B8293F; }
 :root[data-theme="dark"] { --cur-btn: radial-gradient(circle at 34% 30%, #FFFDF6 0, #EADFC6 50%, #B9A47C 100%); --cur-edge: rgba(16, 20, 43, .85); --cur-stitch: #F28597; }
 html.has-cursor, html.has-cursor * { cursor: none !important; }
 html.has-cursor iframe { cursor: auto !important; }
 .cur-dot, .cur-ring { position: fixed; left: 0; top: 0; pointer-events: none; z-index: 2147483000; opacity: 0; transition: opacity .25s; }
 html.cur-on .cur-dot, html.cur-on .cur-ring { opacity: 1; }
-.cur-dot { width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; background: var(--cur-btn); box-shadow: 0 0 0 2px var(--cur-edge), 0 3px 8px rgba(0, 0, 0, .35); will-change: translate; }
-.cur-dot::after { content: ''; position: absolute; left: 50%; top: 50%; width: 4px; height: 4px; margin: -2px 0 0 -2px; border-radius: 50%; background: rgba(0, 0, 0, .45); box-shadow: 0 1px 0 rgba(255, 255, 255, .35); transition: transform .25s var(--ease); }
-.cur-ring { width: 34px; height: 34px; border-radius: 17px; display: grid; place-items: center; will-change: transform, width, height; }
-.cur-ring::before { content: ''; position: absolute; inset: 0; border-radius: inherit; border: 1.5px solid color-mix(in srgb, var(--cur-stitch) 70%, transparent); transition: border-color .25s, background .3s, border-width .2s; }
-.cur-label { position: relative; color: #fff; font: 600 .82rem/1 var(--body); white-space: nowrap; opacity: 0; transform: scale(.6); transition: opacity .2s, transform .35s var(--ease); }
 
-/* pressing: the button sinks into the cushion */
-.cur-dot { transition: opacity .25s, scale .25s var(--ease), border-radius .25s, width .25s, height .25s; }
-html.cur-down .cur-dot { scale: .72; }
-html.cur-down .cur-dot::after { transform: scale(1.5); }
+.cur-dot { width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; background: var(--cur-btn); box-shadow: 0 0 0 2px var(--cur-edge), 0 3px 8px rgba(0, 0, 0, .35); will-change: translate; transition: opacity .25s, scale .25s var(--ease), width .2s var(--ease), height .2s var(--ease), margin .2s var(--ease), border-radius .2s, background .2s; }
+.cur-dot::after { content: ''; position: absolute; left: 50%; top: 50%; width: 4px; height: 4px; margin: -2px 0 0 -2px; border-radius: 50%; background: rgba(0, 0, 0, .45); box-shadow: 0 1px 0 rgba(255, 255, 255, .35); transition: opacity .2s; }
+html.cur-down .cur-dot { scale: .78; }
 
-/* hover states */
-[data-cur="link"] .cur-ring::before { border-style: dashed; border-width: 2px; border-color: var(--cur-stitch); animation: stitch 7s linear infinite; }
-[data-cur="link"] .cur-dot { scale: .7; }
-@keyframes stitch { to { transform: rotate(360deg); } }
-[data-cur="snap"] .cur-ring::before { border: 2px solid var(--cur-stitch); background: color-mix(in srgb, var(--cur-stitch) 9%, transparent); }
-[data-cur="snap"] .cur-dot { scale: .45; }
-[data-cur="view"] .cur-ring::before, [data-cur="add"] .cur-ring::before { border: 0; background: var(--pom); box-shadow: 0 14px 30px -10px rgba(184, 41, 63, .6); }
-[data-cur="add"] .cur-ring::before { background: var(--deep); }
-:root[data-theme="dark"] [data-cur="add"] .cur-ring::before { background: #ECEEF5; }
-:root[data-theme="dark"] [data-cur="add"] .cur-label { color: #141A33; }
-[data-cur="view"] .cur-label, [data-cur="add"] .cur-label { opacity: 1; transform: none; }
-[data-cur="view"] .cur-dot, [data-cur="add"] .cur-dot { scale: 0; }
-[data-cur="grab"] .cur-ring::before, [data-cur="grabbing"] .cur-ring::before { border: 2px solid var(--cur-stitch); background: color-mix(in srgb, var(--cur-stitch) 10%, transparent); }
-[data-cur="grab"] .cur-ring, [data-cur="grabbing"] .cur-ring {
-  background: no-repeat center / 30px url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' fill='%23B8293F'%3E%3Cpath d='M16 3l4 4h-3v4h-2V7h-3zM16 29l-4-4h3v-4h2v4h3zM3 16l4-4v3h4v2H7v3zM29 16l-4 4v-3h-4v-2h4v-3z'/%3E%3C/svg%3E"); }
-[data-cur="grabbing"] .cur-ring::before { background: color-mix(in srgb, var(--cur-stitch) 20%, transparent); }
-[data-cur="grab"] .cur-dot, [data-cur="grabbing"] .cur-dot { scale: .55; }
-[data-cur="text"] .cur-ring::before { border: 0; background: var(--cur-stitch); }
-[data-cur="text"] .cur-dot { scale: 0; }
+.cur-ring { width: 30px; height: 30px; border-radius: 15px; will-change: translate, width, height; }
+.cur-ring::before { content: ''; position: absolute; inset: 0; border-radius: inherit; border: 1.5px solid color-mix(in srgb, var(--cur-stitch) 55%, transparent); transition: border-color .25s, background-color .25s, box-shadow .3s, border-width .2s; }
+.cur-label { position: absolute; left: 50%; top: 0; translate: -50% -50%; padding: 5px 12px; border-radius: 999px; background: var(--cur-stitch); color: #fff; font: 600 .78rem/1.1 var(--body); white-space: nowrap; box-shadow: 0 8px 18px -8px rgba(184, 41, 63, .7); opacity: 0; scale: .8; transition: opacity .2s, scale .3s var(--ease); }
+:root[data-theme="dark"] .cur-label { color: #141A33; }
+html.cur-labelled .cur-label { opacity: 1; scale: 1; }
+
+/* small controls: a snug outline with a faint fill */
+[data-cur="snap"] .cur-ring::before { border: 2px solid var(--cur-stitch); background-color: color-mix(in srgb, var(--cur-stitch) 7%, transparent); }
+[data-cur="snap"] .cur-dot { scale: .6; }
+/* whole things (cards, panels, sets, studio pieces): a calm frame and a label on top */
+[data-cur="zone"] .cur-ring::before, [data-cur="grab"] .cur-ring::before { border: 2px solid color-mix(in srgb, var(--cur-stitch) 75%, transparent); background-color: color-mix(in srgb, var(--cur-stitch) 4%, transparent); box-shadow: 0 0 0 6px color-mix(in srgb, var(--cur-stitch) 8%, transparent); }
+[data-cur="zone"] .cur-dot, [data-cur="grab"] .cur-dot { scale: .6; }
+[data-cur="grabbing"] .cur-ring::before { border: 2px solid var(--cur-stitch); background-color: color-mix(in srgb, var(--cur-stitch) 9%, transparent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--cur-stitch) 12%, transparent); }
+[data-cur="grabbing"] .cur-dot { scale: .5; }
+/* text fields: the field is outlined and the button becomes a caret */
+[data-cur="text"] .cur-ring::before { border: 1.5px solid color-mix(in srgb, var(--cur-stitch) 60%, transparent); }
+[data-cur="text"] .cur-dot { width: 3px; height: 24px; margin: -12px 0 0 -1.5px; border-radius: 2px; background: var(--cur-stitch); box-shadow: none; }
+[data-cur="text"] .cur-dot::after { opacity: 0; }
 [data-cur="disabled"] .cur-ring::before { border: 1.5px dashed color-mix(in srgb, var(--ink) 35%, transparent); }
 [data-cur="disabled"] .cur-dot { filter: grayscale(1); opacity: .6; }
 
-/* a stitched ring that spreads out from each click */
-.cur-ripple { position: fixed; z-index: 2147482999; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; border: 2px dashed var(--cur-stitch); pointer-events: none; animation: curRipple .6s cubic-bezier(.2, .7, .3, 1) forwards; }
-@keyframes curRipple { from { transform: scale(1) rotate(0); opacity: .9; } to { transform: scale(5.5) rotate(45deg); opacity: 0; } }
+/* a gentle ring spreading from each click */
+.cur-ripple { position: fixed; z-index: 2147482999; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; border: 2px solid var(--cur-stitch); pointer-events: none; animation: curRipple .45s cubic-bezier(.2, .7, .3, 1) forwards; }
+@keyframes curRipple { from { transform: scale(1); opacity: .55; } to { transform: scale(3.4); opacity: 0; } }

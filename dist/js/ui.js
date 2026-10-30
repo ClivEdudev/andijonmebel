@@ -208,10 +208,103 @@ export function initTips() {
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && tip.classList.contains('show'))
         hide(); });
 }
-export function initCursor(t) {
+const NONE = { kind: 'none', el: null, box: null, label: '' };
+const INTERACTIVE = 'a[href], button:not(:disabled), [role="button"], [role="option"], [role="tab"], [role="radio"], label.radio, label.check, input:not([type="hidden"]), textarea, summary';
+const TEXTY = 'input:not([type]), input[type="text"], input[type="tel"], input[type="search"], input[type="email"], textarea';
+/** Buttons that spend money, remove things or send the order must be hit on purpose. */
+const NO_MAGNET = '[data-add], [data-add-modal], [data-add-sep], #stAddAll, #coNext, #toCheckout, [data-rm], [data-lq], [data-st-act="del"], [data-st-clear], .danger, #addRoom';
+const SURFACE = '.dd-list, .modal-panel, .drawer-panel, .studio, .menu.open, .top, main, footer';
+const MAGNET = 18;
+export function initPointer(t) {
+    const ZONES = [['.card', '[data-open]', 'cur.view'], ['.panel', '[data-cat]', 'cur.view'], ['.bundle', '[data-try-sep]', 'studio.try']];
+    const BIG = [['.is-scene', 'cur.try'], ['.st-preset', 'cur.open'], ['.st-item', 'cur.add']];
+    function nearest(x, y, hit) {
+        const surf = hit.closest(SURFACE);
+        let best = null;
+        let bd = Infinity;
+        const d = MAGNET, e = Math.round(MAGNET * .72);
+        for (const [ox, oy] of [[d, 0], [-d, 0], [0, d], [0, -d], [e, e], [-e, e], [e, -e], [-e, -e]]) {
+            const c = document.elementFromPoint(x + ox, y + oy)?.closest(INTERACTIVE);
+            if (!c || c.matches(NO_MAGNET) || c.matches(TEXTY) || c.closest('#stSvg') || c.closest(SURFACE) !== surf)
+                continue;
+            if (c.matches('.card-art') || BIG.some(([b]) => c.matches(b)))
+                continue;
+            const r = c.getBoundingClientRect();
+            const dx = Math.max(r.left - x, 0, x - r.right), dy = Math.max(r.top - y, 0, y - r.bottom);
+            const dist = Math.hypot(dx, dy);
+            if (dist < bd) {
+                bd = dist;
+                best = c;
+            }
+        }
+        return bd <= MAGNET ? best : null;
+    }
+    /** What the pointer at (x, y) would use, and what the outline should wrap. */
+    function resolve(x, y, magnet) {
+        const hit = document.elementFromPoint(x, y);
+        if (!hit || hit.tagName === 'IFRAME')
+            return NONE;
+        const sp = hit.closest('#stSvg .sp');
+        if (sp)
+            return { kind: 'grab', el: sp, box: sp, label: t('cur.drag') };
+        if (hit.closest('#stSvg'))
+            return NONE;
+        const tx = hit.closest(TEXTY);
+        if (tx)
+            return { kind: 'text', el: tx, box: tx.closest('.tel, .search') ?? tx, label: '' };
+        const dis = hit.closest('button:disabled');
+        if (dis)
+            return { kind: 'disabled', el: null, box: dis, label: '' };
+        const direct = hit.closest(INTERACTIVE);
+        if (direct) {
+            if (direct.matches('.card-art')) {
+                const card = direct.closest('.card');
+                return { kind: 'zone', el: direct, box: card ?? direct, label: t('cur.view') };
+            }
+            for (const [b, k] of BIG)
+                if (direct.matches(b))
+                    return { kind: 'zone', el: direct, box: direct, label: t(k) };
+            return { kind: 'snap', el: direct, box: direct, label: '' };
+        }
+        if (magnet) {
+            const n = nearest(x, y, hit);
+            if (n)
+                return { kind: 'snap', el: n, box: n, label: '' };
+        }
+        for (const [z, p, k] of ZONES) {
+            const zone = hit.closest(z);
+            const prim = zone?.querySelector(p);
+            if (zone && prim)
+                return { kind: 'zone', el: prim, box: zone, label: t(k) };
+        }
+        return NONE;
+    }
+    /* -- click assist: a click on the empty part of a card (or a near miss beside a small control) does what the outline shows -- */
+    let lastType = 'mouse';
+    let cursorOn = false;
+    document.addEventListener('pointerdown', e => { lastType = e.pointerType; }, true);
+    document.addEventListener('click', e => {
+        if (e.detail === 0 || e.defaultPrevented)
+            return; // keyboard or our own forwarded click
+        const t0 = e.target;
+        if (!(t0 instanceof Element))
+            return;
+        if (t0.closest(INTERACTIVE) || t0.closest('#stSvg, .backdrop, iframe, input, textarea, select, .dd-list'))
+            return;
+        if ((getSelection()?.toString() ?? '').trim())
+            return; // the visitor was selecting text
+        const h = resolve(e.clientX, e.clientY, cursorOn && lastType === 'mouse');
+        if ((h.kind === 'zone' || h.kind === 'snap') && h.el && !h.el.contains(t0)) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            h.el.click();
+        }
+    }, true);
+    /* -- the cursor itself -- */
     const ok = matchMedia('(hover: hover) and (pointer: fine)').matches && !matchMedia('(prefers-reduced-motion: reduce)').matches && !matchMedia('(forced-colors: active)').matches;
     if (!ok)
         return;
+    cursorOn = true;
     const root = document.documentElement;
     const dot = document.createElement('div');
     dot.className = 'cur-dot';
@@ -223,148 +316,122 @@ export function initCursor(t) {
     document.body.append(ring, dot);
     root.classList.add('has-cursor');
     const lab = ring.firstElementChild;
-    let mx = -100, my = -100;
-    let shown = false;
-    let mode = 'default';
-    let snapEl = null;
-    let snapR = 0;
-    let downOn = null;
-    const g = { x: -100, y: -100, w: 34, h: 34, r: 17 };
-    let raf = 0;
-    let idle = 0;
-    const SIZE = { default: 34, link: 52, snap: 0, view: 96, add: 74, grab: 60, grabbing: 46, text: 20, disabled: 30 };
-    function classify(el) {
-        if (!el)
-            return { m: 'default' };
-        if (el.closest('iframe'))
-            return { m: 'default' };
-        const dis = el.closest('button:disabled, [aria-disabled="true"]');
-        if (dis)
-            return { m: 'disabled' };
-        if (el.closest('#stSvg .sp'))
-            return { m: 'grab' };
-        if (el.closest('input:not([type]), input[type="text"], input[type="tel"], input[type="search"], input[type="email"], textarea'))
-            return { m: 'text' };
-        const v = el.closest('.card-art, .is-scene, .st-preset, .panel-art, .pm-art');
-        if (v)
-            return { m: 'view', l: v.matches('.is-scene') ? t('cur.try') : v.matches('.st-preset') ? t('cur.open') : t('cur.view') };
-        if (el.closest('.st-item'))
-            return { m: 'add', l: t('cur.add') };
-        const s = el.closest('.icon-btn, .cart-btn, .close, .st-btn, .st-tool-btns button, .lang button, .sw, .qty button, .chip');
-        if (s)
-            return { m: 'snap', s };
-        if (el.closest('a, button, [role="button"], [role="option"], [role="tab"], label.radio, label.check, input[type="range"], input[type="radio"], input[type="checkbox"], summary'))
-            return { m: 'link' };
-        return { m: 'default' };
+    let mx = -100, my = -100, shown = false, dirty = true, down = false, raf = 0, still = 0;
+    let cur = NONE;
+    let radius = 14;
+    const g = { x: -100, y: -100, w: 30, h: 30, r: 15 };
+    const radiusOf = (el) => { const v = parseFloat(getComputedStyle(el).borderTopLeftRadius); return Number.isFinite(v) ? v : 12; };
+    function apply(h) {
+        if (h.kind === cur.kind && h.box === cur.box && h.el === cur.el)
+            return;
+        cur = h;
+        root.dataset.cur = h.kind;
+        if (h.label)
+            lab.textContent = h.label;
+        root.classList.toggle('cur-labelled', !!h.label);
+        radius = h.box ? (h.kind === 'grab' ? 18 : radiusOf(h.box)) : 15;
     }
-    function setMode(c) {
-        if (snapEl && snapEl !== c.s) {
-            snapEl.style.translate = '';
-        }
-        mode = c.m;
-        snapEl = c.m === 'snap' ? c.s ?? null : null;
-        if (snapEl)
-            snapR = parseFloat(getComputedStyle(snapEl).borderTopLeftRadius) || 12;
-        root.dataset.cur = mode;
-        lab.textContent = c.l ?? '';
-        kick();
+    /** Small hysteresis so the outline doesn't flicker in the gaps between neighbouring things. */
+    function keepCurrent(next) {
+        if (next.kind !== 'none' || !cur.box || (cur.kind !== 'zone' && cur.kind !== 'snap'))
+            return false;
+        const r = cur.box.getBoundingClientRect();
+        const pad = cur.kind === 'zone' ? 14 : MAGNET + 6;
+        return mx > r.left - pad && mx < r.right + pad && my > r.top - pad && my < r.bottom + pad && cur.box.isConnected;
     }
-    const kick = () => { idle = 0; if (!raf)
+    const kick = () => { still = 0; if (!raf)
         raf = requestAnimationFrame(loop); };
     function loop() {
         raf = 0;
+        if (dirty && !down) {
+            dirty = false;
+            const n = resolve(mx, my, true);
+            if (!keepCurrent(n))
+                apply(n);
+        }
         let tx, ty, tw, th, tr;
-        if (mode === 'snap' && snapEl && snapEl.isConnected) {
-            const r = snapEl.getBoundingClientRect();
-            const pad = 5;
-            // magnetic: the button leans a little towards the pointer
-            const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
-            const dx = Math.max(-6, Math.min(6, (mx - cx) * .18)), dy = Math.max(-6, Math.min(6, (my - cy) * .18));
-            snapEl.style.translate = `${dx.toFixed(1)}px ${dy.toFixed(1)}px`;
-            tx = r.left - pad + dx;
-            ty = r.top - pad + dy;
+        const box = cur.box && cur.box.isConnected ? cur.box : null;
+        if (box && cur.kind !== 'none' && cur.kind !== 'disabled') {
+            const r = box.getBoundingClientRect();
+            const pad = cur.kind === 'zone' || cur.kind === 'grab' ? 8 : cur.kind === 'text' ? 4 : 6;
+            tx = r.left - pad;
+            ty = r.top - pad;
             tw = r.width + pad * 2;
             th = r.height + pad * 2;
-            tr = Math.min(snapR + pad, th / 2);
+            tr = Math.min(radius + pad, Math.min(tw, th) / 2);
         }
         else {
-            const s = SIZE[mode] || 34;
+            const s = 30;
             tx = mx - s / 2;
             ty = my - s / 2;
             tw = s;
             th = s;
             tr = s / 2;
-            if (mode === 'text') {
-                tw = 4;
-                th = 30;
-                tx = mx - 2;
-                ty = my - 15;
-                tr = 2;
-            }
         }
-        const k = mode === 'snap' ? .32 : .2;
+        const k = .26;
         g.x += (tx - g.x) * k;
         g.y += (ty - g.y) * k;
         g.w += (tw - g.w) * k;
         g.h += (th - g.h) * k;
         g.r += (tr - g.r) * k;
-        ring.style.transform = `translate3d(${g.x.toFixed(2)}px, ${g.y.toFixed(2)}px, 0)`;
-        ring.style.width = `${g.w.toFixed(2)}px`;
-        ring.style.height = `${g.h.toFixed(2)}px`;
-        ring.style.borderRadius = `${g.r.toFixed(2)}px`;
-        const moving = Math.abs(tx - g.x) + Math.abs(ty - g.y) + Math.abs(tw - g.w) + Math.abs(th - g.h) > .3;
-        if (moving || mode === 'snap') {
-            if (++idle < 600 || moving)
-                raf = requestAnimationFrame(loop);
-        }
+        ring.style.translate = `${g.x.toFixed(1)}px ${g.y.toFixed(1)}px`;
+        ring.style.width = `${g.w.toFixed(1)}px`;
+        ring.style.height = `${g.h.toFixed(1)}px`;
+        ring.style.borderRadius = `${g.r.toFixed(1)}px`;
+        const moving = Math.abs(tx - g.x) + Math.abs(ty - g.y) + Math.abs(tw - g.w) + Math.abs(th - g.h) > .4;
+        if (moving || down || dirty)
+            still = 0;
+        if (++still < 30)
+            raf = requestAnimationFrame(loop); // a few calm frames after settling, then rest
     }
     addEventListener('pointermove', e => {
         if (e.pointerType !== 'mouse')
             return;
         mx = e.clientX;
         my = e.clientY;
-        // position with `translate` so the hover shrink (`scale`) happens around the button itself, not the screen corner
+        dirty = true;
         dot.style.translate = `${mx}px ${my}px`;
         if (!shown) {
             shown = true;
             root.classList.add('cur-on');
-            g.x = mx - 17;
-            g.y = my - 17;
+            g.x = mx - 15;
+            g.y = my - 15;
         }
         kick();
     }, { passive: true });
-    document.addEventListener('pointerover', e => { if (e.pointerType === 'mouse' && !downOn)
-        setMode(classify(e.target)); });
     document.addEventListener('pointerdown', e => {
         if (e.pointerType !== 'mouse')
             return;
-        downOn = e.target;
+        down = true;
         root.classList.add('cur-down');
-        if (mode === 'grab')
-            setMode({ m: 'grabbing' });
-        if (mode !== 'text')
+        if (cur.kind === 'grab')
+            root.dataset.cur = 'grabbing';
+        if (cur.kind !== 'text')
             ripple(e.clientX, e.clientY);
+        kick();
     }, true);
     addEventListener('pointerup', e => {
         if (e.pointerType !== 'mouse')
             return;
-        downOn = null;
+        down = false;
         root.classList.remove('cur-down');
-        setMode(classify(document.elementFromPoint(e.clientX, e.clientY)));
+        dirty = true;
+        cur = { ...cur, kind: cur.kind };
+        root.dataset.cur = cur.kind;
+        kick();
     }, true);
     document.addEventListener('pointerout', e => { if (!e.relatedTarget && e.pointerType === 'mouse') {
         shown = false;
         root.classList.remove('cur-on');
-        if (snapEl)
-            snapEl.style.translate = '';
     } });
-    // Over an embedded map the page can't draw its cursor, so hand it back to the system.
     document.addEventListener('pointerover', e => { if (e.target.tagName === 'IFRAME') {
-        root.classList.remove('cur-on');
         shown = false;
+        root.classList.remove('cur-on');
     } });
-    addEventListener('scroll', kick, { passive: true });
-    addEventListener('blur', () => { root.classList.remove('cur-on'); shown = false; });
+    addEventListener('scroll', () => { dirty = true; kick(); }, { passive: true });
+    addEventListener('blur', () => { shown = false; root.classList.remove('cur-on'); });
+    // things open and close under a still pointer (menus, dialogs): re-check what's underneath
+    new MutationObserver(() => { dirty = true; kick(); }).observe(document.body, { attributes: true, subtree: true, attributeFilter: ['class', 'hidden'] });
     function ripple(x, y) {
         const r = document.createElement('span');
         r.className = 'cur-ripple';
@@ -372,6 +439,6 @@ export function initCursor(t) {
         r.style.top = `${y}px`;
         document.body.appendChild(r);
         r.addEventListener('animationend', () => r.remove(), { once: true });
-        setTimeout(() => r.remove(), 900);
+        setTimeout(() => r.remove(), 800);
     }
 }

@@ -2,7 +2,7 @@ import { draw, drawInner, decor, type Colors } from './art.js';
 import { CATS, PRODUCTS, PRODUCT, SEP, bundleFull, ROOM_SET, ZONES, ASSEMBLY_FEE, STORE, type Lang, type Product, type CatId } from './data.js';
 import { DICT } from './i18n.js';
 import { initStudio } from './studio.js';
-import { enhanceSelects, syncDropdowns, initTips, initCursor } from './ui.js';
+import { enhanceSelects, syncDropdowns, initTips, initPointer } from './ui.js';
 
 /* ---------- helpers ---------- */
 const $ = <T extends Element = HTMLElement>(s: string, root: ParentNode = document) => root.querySelector(s) as T;
@@ -748,7 +748,7 @@ function boot() {
     load: k => store.raw(k), save: (k, v) => store.set(k, v),
   });
   bind(); applyLang(); observeReveals();
-  enhanceSelects(); syncDropdowns(); initTips(); initCursor(t);
+  enhanceSelects(); syncDropdowns(); initTips(); initPointer(t);
   const openShared = () => { const m = location.hash.match(/^#studio=([\w.~-]{1,2000})$/); if (!m) return; try { history.replaceState(history.state, '', location.pathname + location.search); } catch { /* ignore */ } studio.open({ shared: m[1] }); };
   openShared(); addEventListener('hashchange', openShared);
   if (reduced) { root.classList.add('reduced'); updateRoomStatic(); }

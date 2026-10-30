@@ -3,6 +3,7 @@ import type { Lang } from './data.js';
 type Dict = Record<string, string>;
 
 const uz: Dict = {
+  'cur.drag': 'Surish',
   'cur.view': 'Koʻrish',
   'cur.try': 'Sinab koʻrish',
   'cur.open': 'Ochish',
@@ -128,6 +129,7 @@ const uz: Dict = {
 };
 
 const ru: Dict = {
+  'cur.drag': 'Двигать',
   'cur.view': 'Смотреть',
   'cur.try': 'Попробовать',
   'cur.open': 'Открыть',
@@ -253,6 +255,7 @@ const ru: Dict = {
 };
 
 const en: Dict = {
+  'cur.drag': 'Drag',
   'cur.view': 'View',
   'cur.try': 'Try it',
   'cur.open': 'Open',
