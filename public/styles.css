@@ -744,7 +744,7 @@ html.has-cursor, html.has-cursor * { cursor: none !important; }
 html.has-cursor iframe { cursor: auto !important; }
 .cur-dot, .cur-ring { position: fixed; left: 0; top: 0; pointer-events: none; z-index: 2147483000; opacity: 0; transition: opacity .25s; }
 html.cur-on .cur-dot, html.cur-on .cur-ring { opacity: 1; }
-.cur-dot { width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; background: var(--cur-btn); box-shadow: 0 0 0 2px var(--cur-edge), 0 3px 8px rgba(0, 0, 0, .35); will-change: transform; }
+.cur-dot { width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; background: var(--cur-btn); box-shadow: 0 0 0 2px var(--cur-edge), 0 3px 8px rgba(0, 0, 0, .35); will-change: translate; }
 .cur-dot::after { content: ''; position: absolute; left: 50%; top: 50%; width: 4px; height: 4px; margin: -2px 0 0 -2px; border-radius: 50%; background: rgba(0, 0, 0, .45); box-shadow: 0 1px 0 rgba(255, 255, 255, .35); transition: transform .25s var(--ease); }
 .cur-ring { width: 34px; height: 34px; border-radius: 17px; display: grid; place-items: center; will-change: transform, width, height; }
 .cur-ring::before { content: ''; position: absolute; inset: 0; border-radius: inherit; border: 1.5px solid color-mix(in srgb, var(--cur-stitch) 70%, transparent); transition: border-color .25s, background .3s, border-width .2s; }

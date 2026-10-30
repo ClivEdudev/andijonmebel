@@ -323,7 +323,8 @@ export function initCursor(t) {
             return;
         mx = e.clientX;
         my = e.clientY;
-        dot.style.transform = `translate3d(${mx}px, ${my}px, 0)`;
+        // position with `translate` so the hover shrink (`scale`) happens around the button itself, not the screen corner
+        dot.style.translate = `${mx}px ${my}px`;
         if (!shown) {
             shown = true;
             root.classList.add('cur-on');
