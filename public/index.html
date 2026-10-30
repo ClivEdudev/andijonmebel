@@ -36,11 +36,13 @@
       <a href="#sep" data-i18n="nav.sep">Kelin sepi</a>
       <a href="#delivery" data-i18n="nav.delivery">Yetkazish</a>
       <a href="#visit" data-i18n="nav.visit">Doʻkon</a>
+      <button class="nav-studio" data-studio><svg class="cube" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l8.5 4.8v9.4L12 21.5l-8.5-4.8V7.3z M3.5 7.3L12 12l8.5-4.7 M12 12v9.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><span data-i18n="nav.studio">Xona studiyasi</span></button>
     </nav>
     <div class="lang" role="group" aria-label="Til / Язык / Language">
       <button data-lang="uz">UZ</button><button data-lang="ru">RU</button><button data-lang="en">EN</button>
     </div>
   </div>
+  <button class="icon-btn studio-btn" data-studio data-i18n-aria="nav.studio" aria-label="Xona studiyasi"><svg class="cube" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l8.5 4.8v9.4L12 21.5l-8.5-4.8V7.3z M3.5 7.3L12 12l8.5-4.7 M12 12v9.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></button>
   <button class="icon-btn theme-btn" id="themeBtn" data-i18n-aria="aria.theme" aria-label="Tungi rejim" aria-pressed="false">
     <svg viewBox="0 0 24 24" aria-hidden="true">
       <mask id="moonMask"><rect width="24" height="24" fill="#fff"/><circle class="tm-bite" cx="24" cy="4" r="7" fill="#000"/></mask>
@@ -70,6 +72,7 @@
         <div class="hero-cta">
           <button id="addRoom" class="btn btn-pom"><span data-i18n="hero.addRoom"></span><span class="btn-sub" id="roomTotal"></span></button>
           <a href="#catalog" class="btn btn-line" data-i18n="hero.browse"></a>
+          <button class="hero-studio" data-studio-preset="living"><svg class="cube" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l8.5 4.8v9.4L12 21.5l-8.5-4.8V7.3z M3.5 7.3L12 12l8.5-4.7 M12 12v9.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><span data-i18n="studio.heroLink"></span></button>
         </div>
       </div>
       <div class="hero-stage"><svg id="room" viewBox="0 0 1200 760" role="img" aria-label="Robiya mebellari"></svg></div>
@@ -105,6 +108,19 @@
     </div>
     <div class="grid" id="grid"></div>
     <p class="empty" id="empty" data-i18n="cat.emptyMsg" hidden></p>
+  </section>
+
+  <section class="intro-studio" id="studio-intro">
+    <div class="is-copy" data-reveal>
+      <h2 data-i18n="intro.title" data-split></h2>
+      <p data-i18n="intro.sub"></p>
+      <ol class="is-steps"><li data-i18n="intro.s1"></li><li data-i18n="intro.s2"></li><li data-i18n="intro.s3"></li></ol>
+      <button class="btn btn-pom" data-studio><svg class="cube" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l8.5 4.8v9.4L12 21.5l-8.5-4.8V7.3z M3.5 7.3L12 12l8.5-4.7 M12 12v9.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><span data-i18n="studio.open"></span></button>
+    </div>
+    <button class="is-scene" data-studio-preset="living" data-reveal data-i18n-aria="studio.open">
+      <svg id="introScene" viewBox="0 0 1200 760" aria-hidden="true"></svg>
+      <span class="is-badge" data-i18n="intro.badge"></span>
+    </button>
   </section>
 
   <section class="sep" id="sep">
@@ -202,6 +218,39 @@
     </div>
   </div>
 </div>
+
+<section class="studio" id="studio" role="dialog" aria-modal="true" aria-labelledby="stTitle" aria-hidden="true">
+  <header class="st-top">
+    <div class="st-title"><svg class="cube" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l8.5 4.8v9.4L12 21.5l-8.5-4.8V7.3z M3.5 7.3L12 12l8.5-4.7 M12 12v9.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><div><h2 id="stTitle" data-i18n="studio.title"></h2><p data-i18n="studio.sub"></p></div></div>
+    <div class="st-actions">
+      <button class="st-btn" id="stUndo" data-i18n-aria="studio.undo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14L4 9l5-5M4 9h10.5a5.5 5.5 0 0 1 0 11H11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <button class="st-btn" id="stRedo" data-i18n-aria="studio.redo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 14l5-5-5-5M20 9H9.5a5.5 5.5 0 0 0 0 11H13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <button class="st-btn wide" id="stShare"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="6" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="18" cy="19" r="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8.6 10.5l6.8-4M8.6 13.5l6.8 4" stroke="currentColor" stroke-width="2"/></svg><span data-i18n="studio.share"></span></button>
+      <button class="st-btn wide" id="stPhoto"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg><span data-i18n="studio.photo"></span></button>
+      <button class="close" data-i18n-aria="close" aria-label="Yopish">×</button>
+    </div>
+  </header>
+  <div class="st-stage" id="stStage">
+    <svg id="stSvg" viewBox="0 0 1200 760" aria-labelledby="stTitle" role="application"></svg>
+    <div class="st-empty" id="stEmpty" hidden></div>
+    <div class="st-tool" id="stTool" role="toolbar" aria-label="Mebel" hidden></div>
+    <p class="st-hint" id="stHint" hidden></p>
+  </div>
+  <aside class="st-side">
+    <div class="st-tabs" role="tablist">
+      <button role="tab" aria-selected="true" data-sttab="items" data-i18n="studio.tabItems"></button>
+      <button role="tab" aria-selected="false" data-sttab="room" data-i18n="studio.tabRoom"></button>
+    </div>
+    <div class="st-panel" id="stPanelItems"><div class="st-cats" id="stCats"></div><div class="st-grid" id="stGrid"></div></div>
+    <div class="st-panel" id="stPanelRoom" hidden></div>
+  </aside>
+  <footer class="st-bar">
+    <div class="st-sum"><span id="stCount"></span><b id="stTotal"></b></div>
+    <div class="st-chips" id="stChips"></div>
+    <button class="btn btn-pom" id="stAddAll"></button>
+  </footer>
+  <p class="sr" aria-live="polite" id="stLive"></p>
+</section>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 

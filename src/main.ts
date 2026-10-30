@@ -1,6 +1,7 @@
 import { draw, drawInner, decor, type Colors } from './art.js';
 import { CATS, PRODUCTS, PRODUCT, SEP, bundleFull, ROOM_SET, ZONES, ASSEMBLY_FEE, STORE, type Lang, type Product, type CatId } from './data.js';
 import { DICT } from './i18n.js';
+import { initStudio } from './studio.js';
 
 /* ---------- helpers ---------- */
 const $ = <T extends Element = HTMLElement>(s: string, root: ParentNode = document) => root.querySelector(s) as T;
@@ -69,6 +70,7 @@ function paintTheme(th: Theme) {
   root.dataset.theme = th;
   $('meta[name="theme-color"]')?.setAttribute('content', th === 'dark' ? '#10142B' : '#EDEFEA');
   const b = $('#themeBtn'); b.setAttribute('aria-pressed', String(th === 'dark'));
+  studio?.renderIntro();
 }
 function setTheme(next: Theme, origin?: HTMLElement) {
   store.set('rm-theme', next);
@@ -102,6 +104,7 @@ function applyLang() {
   if ($('#checkout').classList.contains('open') && order.step < 4) renderCheckout();
   if (openProduct) renderProductModal(openProduct);
   layout(); if (!reduced) syncScene();
+  studio?.refresh();
 }
 
 /* ---------- hero room ---------- */
@@ -273,12 +276,15 @@ function setColor(id: string, k: number) {
 let openProduct: string | null = null; let modalQty = 1;
 const focusBack = new Map<string, HTMLElement | null>();
 let ignorePops = 0;
-const openOverlays = () => $$('.modal.open, .drawer.open, .menu.open');
+const stack: HTMLElement[] = [];
+const openOverlays = () => stack.slice();
 function syncLocks() {
-  const blocking = $$('.modal.open, .drawer.open').length > 0; const menu = $('#menu').classList.contains('open');
+  const blocking = stack.some(e => e.id !== 'menu'); const menu = stack.some(e => e.id === 'menu');
   ($('.top') as HTMLElement).inert = blocking;
   ($('main') as HTMLElement).inert = blocking || menu;
   ($('.foot') as HTMLElement).inert = blocking || menu;
+  // Only the top-most layer is interactive (e.g. the cart opened over the studio).
+  stack.forEach((e, i) => { if (e.id !== 'menu') e.inert = i < stack.length - 1; });
   root.classList.toggle('locked', blocking || menu);
   // Keep the header's blur off until the menu has finished sliding away (the blur would trap the fixed menu inside the header).
   clearTimeout(menuClassTimer);
@@ -287,6 +293,7 @@ function syncLocks() {
 let menuClassTimer = 0;
 function openOverlay(el: HTMLElement, replaceHistory = false) {
   focusBack.set(el.id, document.activeElement as HTMLElement);
+  if (!stack.includes(el)) stack.push(el);
   $('#toast').classList.remove('show');
   el.classList.add('open'); if (el.id !== 'menu') el.setAttribute('aria-hidden', 'false'); syncLocks();
   if (el.id === 'menu') { $('#menuBtn').setAttribute('aria-expanded', 'true'); }
@@ -295,6 +302,8 @@ function openOverlay(el: HTMLElement, replaceHistory = false) {
 }
 function closeOverlay(el: HTMLElement, restoreFocus = true) {
   if (!el.classList.contains('open')) return;
+  const i = stack.indexOf(el); if (i >= 0) stack.splice(i, 1); el.inert = false;
+  if (el.id === 'studio') studio.onClose();
   el.classList.remove('open'); if (el.id !== 'menu') el.setAttribute('aria-hidden', 'true'); syncLocks();
   if (el.id === 'pmodal') openProduct = null;
   if (el.id === 'menu') $('#menuBtn').setAttribute('aria-expanded', 'false');
@@ -307,7 +316,7 @@ function requestClose(el: HTMLElement, restoreFocus = true) {
 }
 addEventListener('popstate', () => {
   if (ignorePops > 0) { ignorePops--; return; }
-  const top = openOverlays().pop(); if (top) closeOverlay(top);
+  const top = stack[stack.length - 1]; if (top) closeOverlay(top);
 });
 
 function renderProductModal(id: string) {
@@ -321,8 +330,11 @@ function renderProductModal(id: string) {
     <dl class="pm-spec"><div><dt>${t('pm.size')}</dt><dd>${p.dims} ${t('cm')}</dd></div><div><dt>${t('pm.color')}</dt><dd>${p.swatches[i].name[lang]}</dd></div><div><dt>${t('pm.warranty')}</dt><dd>${t('pm.warrantyV')}</dd></div></dl>
     ${swatchesHTML(p, i).replace('class="swatches"', 'class="swatches lg"')}
     <div class="pm-buy"><div class="qty"><button data-q="-1" aria-label="${t('qty.less')}" ${modalQty <= 1 ? 'disabled' : ''}>−</button><output aria-live="polite">${modalQty}</output><button data-q="1" aria-label="${t('qty.more')}" ${modalQty >= room ? 'disabled' : ''}>+</button></div>
-    <button class="btn btn-pom" data-add-modal="${p.id}" ${room <= 0 ? 'disabled' : ''}>${room <= 0 ? t('toast.max') : `${t('card.add')} · ${money(p.price * modalQty)}`}</button></div></div>`;
+    <button class="btn btn-pom" data-add-modal="${p.id}" ${room <= 0 ? 'disabled' : ''}>${room <= 0 ? t('toast.max') : `${t('card.add')} · ${money(p.price * modalQty)}`}</button></div>
+    <button class="btn btn-line wide try-btn" data-try="${p.id}">${CUBE}${t('studio.try')}</button></div>`;
 }
+
+const CUBE = '<svg class="cube" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l8.5 4.8v9.4L12 21.5l-8.5-4.8V7.3z M3.5 7.3L12 12l8.5-4.7 M12 12v9.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>';
 
 /* ---------- cart ---------- */
 function save() { store.set('rm-cart', cart); }
@@ -337,6 +349,19 @@ function addToCart(key: string, color = 0, qty = 1, from?: Element | null, art?:
   if (from) flyToCart(from, art);
   toast(add < qty ? t('toast.max') : `${t('toast.added')}: ${lineName({ key, color, qty })}`);
   return true;
+}
+/** Adds a batch of lines at once (from the studio), respecting the per-item and cart limits. */
+function addMany(lines: { key: string; color: number; qty: number }[]) {
+  let added = 0, capped = false;
+  for (const l of sanitizeCart(lines)) {
+    const ex = cart.find(c => c.key === l.key && c.color === l.color);
+    const take = Math.min(l.qty, MAX_QTY - (ex?.qty ?? 0)); if (take < l.qty) capped = true; if (take <= 0) continue;
+    if (ex) ex.qty += take; else if (cart.length < MAX_LINES) cart.push({ key: l.key, color: l.color, qty: take }); else { capped = true; continue; }
+    added += take;
+  }
+  save(); renderCart();
+  if (added) $('#cartBtn').animate([{ transform: 'scale(1)' }, { transform: 'scale(1.25) rotate(-8deg)' }, { transform: 'scale(1)' }], { duration: 420, easing: 'cubic-bezier(.3,1.6,.5,1)' });
+  return { added, capped };
 }
 function lineArt(l: Line) {
   if (isSep(l)) { const p = PRODUCT(SEP.find(x => x.id === l.key)!.show[0]); return draw(p.art, colorsOf(p, 0)); }
@@ -402,7 +427,7 @@ function renderSep() {
       <ul>${b.items.map(id => `<li>${esc(PRODUCT(id).name[lang])}</li>`).join('')}</ul>
       <p class="price big"><s>${money(full)}</s><b>${money(b.price)}</b></p>
       <p class="bundle-save">${t('sep.save')} ${money(full - b.price)}</p>
-      <button class="btn btn-pom" data-add-sep="${b.id}">${t('sep.add')}</button></article>`;
+      <div class="bundle-btns"><button class="btn btn-pom" data-add-sep="${b.id}">${t('sep.add')}</button><button class="btn btn-line try-btn" data-try-sep="${b.id}">${CUBE}${t('studio.try')}</button></div></article>`;
   }).join('');
   observeReveals();
 }
@@ -617,6 +642,15 @@ function bind() {
     const tg = e.target as HTMLElement;
     const langBtn = tg.closest<HTMLElement>('.lang button'); if (langBtn) { const l = langBtn.dataset.lang; if (isLang(l) && l !== lang) { lang = l; store.set('rm-lang', lang); applyLang(); } return; }
     if (tg.closest('#themeBtn')) { setTheme(currentTheme() === 'dark' ? 'light' : 'dark', $('#themeBtn')); return; }
+    const so = tg.closest<HTMLElement>('[data-studio], [data-studio-preset]');
+    if (so) {
+      const owner = so.closest<HTMLElement>('.menu.open'); if (owner) requestClose(owner, false);
+      studio.open({ preset: so.dataset.studioPreset, origin: so }); return;
+    }
+    const tr = tg.closest<HTMLElement>('[data-try]');
+    if (tr) { const id = tr.dataset.try!; const pm = $('#pmodal'); const inModal = pm.classList.contains('open'); if (inModal) closeOverlay(pm, false); studio.open({ add: { id, c: sel[id] ?? 0 }, origin: tr, replace: inModal }); return; }
+    const ts = tg.closest<HTMLElement>('[data-try-sep]');
+    if (ts) { studio.open({ sep: ts.dataset.trySep!, origin: ts }); return; }
     if (tg.closest('#menuBtn')) { const m = $('#menu'); m.classList.contains('open') ? requestClose(m) : openOverlay(m); return; }
     const sw = tg.closest<HTMLElement>('[data-sw]'); if (sw) { const [id, k] = sw.dataset.sw!.split(':'); setColor(id, +k); return; }
     const add = tg.closest<HTMLElement>('[data-add]'); if (add) { const id = add.dataset.add!; addToCart(id, sel[id] ?? 0, 1, add.closest('.card')?.querySelector('.card-art')); return; }
@@ -624,7 +658,7 @@ function bind() {
     const q = tg.closest<HTMLButtonElement>('[data-q]'); if (q && openProduct) { modalQty = clamp(modalQty + +q.dataset.q!, 1, MAX_QTY); renderProductModal(openProduct); $<HTMLButtonElement>(`[data-q="${q.dataset.q}"]`)?.focus(); return; }
     const am = tg.closest<HTMLElement>('[data-add-modal]'); if (am) { const id = am.dataset.addModal!; addToCart(id, sel[id] ?? 0, modalQty, $('.pm-art')); requestClose($('#pmodal')); return; }
     const sepB = tg.closest<HTMLElement>('[data-add-sep]'); if (sepB) { addToCart(sepB.dataset.addSep!, -1, 1, sepB.closest('.bundle')?.querySelector('.bundle-art')); return; }
-    const chip = tg.closest<HTMLElement>('.chip'); if (chip) { view.cat = chip.dataset.cat as typeof view.cat; $$('.chip').forEach(c => c.setAttribute('aria-pressed', String(c === chip))); renderGrid(); return; }
+    const chip = tg.closest<HTMLElement>('#chips .chip'); if (chip) { view.cat = chip.dataset.cat as typeof view.cat; $$('.chip').forEach(c => c.setAttribute('aria-pressed', String(c === chip))); renderGrid(); return; }
     const rc = tg.closest<HTMLElement>('.panel [data-cat]'); if (rc) { view.cat = rc.dataset.cat as CatId; renderChips(); renderGrid(); navTo($('#catalog')); return; }
     if (tg.closest('#addRoom')) {
       if (performance.now() - lastAddAt < 900) return; lastAddAt = performance.now();
@@ -698,10 +732,20 @@ function bind() {
 }
 
 /* ---------- boot ---------- */
+let studio: ReturnType<typeof initStudio>;
 function boot() {
   try { history.scrollRestoration = 'manual'; if ((history.state as { ov?: string } | null)?.ov) history.replaceState(null, ''); } catch { /* ignore */ }
   paintTheme(currentTheme());
-  cacheEls(); buildRoom(); bind(); applyLang(); observeReveals();
+  cacheEls(); buildRoom();
+  studio = initStudio({
+    t, lang: () => lang, money, esc, reduced, colorsOf, theme: currentTheme,
+    openOverlay, requestClose: el => requestClose(el), addMany,
+    openCart: () => openOverlay($('#cart')), toast,
+    load: k => store.raw(k), save: (k, v) => store.set(k, v),
+  });
+  bind(); applyLang(); observeReveals();
+  const openShared = () => { const m = location.hash.match(/^#studio=([\w.~-]{1,2000})$/); if (!m) return; try { history.replaceState(history.state, '', location.pathname + location.search); } catch { /* ignore */ } studio.open({ shared: m[1] }); };
+  openShared(); addEventListener('hashchange', openShared);
   if (reduced) { root.classList.add('reduced'); updateRoomStatic(); }
   requestAnimationFrame(frame);
   document.fonts?.ready.then(() => layout()).catch(() => { /* fonts unavailable */ });

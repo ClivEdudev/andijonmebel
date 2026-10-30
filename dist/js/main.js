@@ -1,6 +1,7 @@
 import { draw, drawInner, decor } from './art.js';
 import { CATS, PRODUCTS, PRODUCT, SEP, bundleFull, ROOM_SET, ZONES, ASSEMBLY_FEE, STORE } from './data.js';
 import { DICT } from './i18n.js';
+import { initStudio } from './studio.js';
 /* ---------- helpers ---------- */
 const $ = (s, root = document) => root.querySelector(s);
 const $$ = (s, root = document) => Array.from(root.querySelectorAll(s));
@@ -89,6 +90,7 @@ function paintTheme(th) {
     $('meta[name="theme-color"]')?.setAttribute('content', th === 'dark' ? '#10142B' : '#EDEFEA');
     const b = $('#themeBtn');
     b.setAttribute('aria-pressed', String(th === 'dark'));
+    studio?.renderIntro();
 }
 function setTheme(next, origin) {
     store.set('rm-theme', next);
@@ -137,6 +139,7 @@ function applyLang() {
     layout();
     if (!reduced)
         syncScene();
+    studio?.refresh();
 }
 const cOf = (id) => colorsOf(PRODUCT(id), 0);
 const PIECES = [
@@ -339,13 +342,17 @@ let openProduct = null;
 let modalQty = 1;
 const focusBack = new Map();
 let ignorePops = 0;
-const openOverlays = () => $$('.modal.open, .drawer.open, .menu.open');
+const stack = [];
+const openOverlays = () => stack.slice();
 function syncLocks() {
-    const blocking = $$('.modal.open, .drawer.open').length > 0;
-    const menu = $('#menu').classList.contains('open');
+    const blocking = stack.some(e => e.id !== 'menu');
+    const menu = stack.some(e => e.id === 'menu');
     $('.top').inert = blocking;
     $('main').inert = blocking || menu;
     $('.foot').inert = blocking || menu;
+    // Only the top-most layer is interactive (e.g. the cart opened over the studio).
+    stack.forEach((e, i) => { if (e.id !== 'menu')
+        e.inert = i < stack.length - 1; });
     root.classList.toggle('locked', blocking || menu);
     // Keep the header's blur off until the menu has finished sliding away (the blur would trap the fixed menu inside the header).
     clearTimeout(menuClassTimer);
@@ -357,6 +364,8 @@ function syncLocks() {
 let menuClassTimer = 0;
 function openOverlay(el, replaceHistory = false) {
     focusBack.set(el.id, document.activeElement);
+    if (!stack.includes(el))
+        stack.push(el);
     $('#toast').classList.remove('show');
     el.classList.add('open');
     if (el.id !== 'menu')
@@ -377,6 +386,12 @@ function openOverlay(el, replaceHistory = false) {
 function closeOverlay(el, restoreFocus = true) {
     if (!el.classList.contains('open'))
         return;
+    const i = stack.indexOf(el);
+    if (i >= 0)
+        stack.splice(i, 1);
+    el.inert = false;
+    if (el.id === 'studio')
+        studio.onClose();
     el.classList.remove('open');
     if (el.id !== 'menu')
         el.setAttribute('aria-hidden', 'true');
@@ -401,7 +416,7 @@ addEventListener('popstate', () => {
         ignorePops--;
         return;
     }
-    const top = openOverlays().pop();
+    const top = stack[stack.length - 1];
     if (top)
         closeOverlay(top);
 });
@@ -419,8 +434,10 @@ function renderProductModal(id) {
     <dl class="pm-spec"><div><dt>${t('pm.size')}</dt><dd>${p.dims} ${t('cm')}</dd></div><div><dt>${t('pm.color')}</dt><dd>${p.swatches[i].name[lang]}</dd></div><div><dt>${t('pm.warranty')}</dt><dd>${t('pm.warrantyV')}</dd></div></dl>
     ${swatchesHTML(p, i).replace('class="swatches"', 'class="swatches lg"')}
     <div class="pm-buy"><div class="qty"><button data-q="-1" aria-label="${t('qty.less')}" ${modalQty <= 1 ? 'disabled' : ''}>−</button><output aria-live="polite">${modalQty}</output><button data-q="1" aria-label="${t('qty.more')}" ${modalQty >= room ? 'disabled' : ''}>+</button></div>
-    <button class="btn btn-pom" data-add-modal="${p.id}" ${room <= 0 ? 'disabled' : ''}>${room <= 0 ? t('toast.max') : `${t('card.add')} · ${money(p.price * modalQty)}`}</button></div></div>`;
+    <button class="btn btn-pom" data-add-modal="${p.id}" ${room <= 0 ? 'disabled' : ''}>${room <= 0 ? t('toast.max') : `${t('card.add')} · ${money(p.price * modalQty)}`}</button></div>
+    <button class="btn btn-line wide try-btn" data-try="${p.id}">${CUBE}${t('studio.try')}</button></div>`;
 }
+const CUBE = '<svg class="cube" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l8.5 4.8v9.4L12 21.5l-8.5-4.8V7.3z M3.5 7.3L12 12l8.5-4.7 M12 12v9.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>';
 /* ---------- cart ---------- */
 function save() { store.set('rm-cart', cart); }
 let lastAddAt = 0;
@@ -446,6 +463,32 @@ function addToCart(key, color = 0, qty = 1, from, art) {
         flyToCart(from, art);
     toast(add < qty ? t('toast.max') : `${t('toast.added')}: ${lineName({ key, color, qty })}`);
     return true;
+}
+/** Adds a batch of lines at once (from the studio), respecting the per-item and cart limits. */
+function addMany(lines) {
+    let added = 0, capped = false;
+    for (const l of sanitizeCart(lines)) {
+        const ex = cart.find(c => c.key === l.key && c.color === l.color);
+        const take = Math.min(l.qty, MAX_QTY - (ex?.qty ?? 0));
+        if (take < l.qty)
+            capped = true;
+        if (take <= 0)
+            continue;
+        if (ex)
+            ex.qty += take;
+        else if (cart.length < MAX_LINES)
+            cart.push({ key: l.key, color: l.color, qty: take });
+        else {
+            capped = true;
+            continue;
+        }
+        added += take;
+    }
+    save();
+    renderCart();
+    if (added)
+        $('#cartBtn').animate([{ transform: 'scale(1)' }, { transform: 'scale(1.25) rotate(-8deg)' }, { transform: 'scale(1)' }], { duration: 420, easing: 'cubic-bezier(.3,1.6,.5,1)' });
+    return { added, capped };
 }
 function lineArt(l) {
     if (isSep(l)) {
@@ -536,7 +579,7 @@ function renderSep() {
       <ul>${b.items.map(id => `<li>${esc(PRODUCT(id).name[lang])}</li>`).join('')}</ul>
       <p class="price big"><s>${money(full)}</s><b>${money(b.price)}</b></p>
       <p class="bundle-save">${t('sep.save')} ${money(full - b.price)}</p>
-      <button class="btn btn-pom" data-add-sep="${b.id}">${t('sep.add')}</button></article>`;
+      <div class="bundle-btns"><button class="btn btn-pom" data-add-sep="${b.id}">${t('sep.add')}</button><button class="btn btn-line try-btn" data-try-sep="${b.id}">${CUBE}${t('studio.try')}</button></div></article>`;
     }).join('');
     observeReveals();
 }
@@ -856,6 +899,29 @@ function bind() {
             setTheme(currentTheme() === 'dark' ? 'light' : 'dark', $('#themeBtn'));
             return;
         }
+        const so = tg.closest('[data-studio], [data-studio-preset]');
+        if (so) {
+            const owner = so.closest('.menu.open');
+            if (owner)
+                requestClose(owner, false);
+            studio.open({ preset: so.dataset.studioPreset, origin: so });
+            return;
+        }
+        const tr = tg.closest('[data-try]');
+        if (tr) {
+            const id = tr.dataset.try;
+            const pm = $('#pmodal');
+            const inModal = pm.classList.contains('open');
+            if (inModal)
+                closeOverlay(pm, false);
+            studio.open({ add: { id, c: sel[id] ?? 0 }, origin: tr, replace: inModal });
+            return;
+        }
+        const ts = tg.closest('[data-try-sep]');
+        if (ts) {
+            studio.open({ sep: ts.dataset.trySep, origin: ts });
+            return;
+        }
         if (tg.closest('#menuBtn')) {
             const m = $('#menu');
             m.classList.contains('open') ? requestClose(m) : openOverlay(m);
@@ -900,7 +966,7 @@ function bind() {
             addToCart(sepB.dataset.addSep, -1, 1, sepB.closest('.bundle')?.querySelector('.bundle-art'));
             return;
         }
-        const chip = tg.closest('.chip');
+        const chip = tg.closest('#chips .chip');
         if (chip) {
             view.cat = chip.dataset.cat;
             $$('.chip').forEach(c => c.setAttribute('aria-pressed', String(c === chip)));
@@ -1109,6 +1175,7 @@ function bind() {
         paintTheme(ev.matches ? 'dark' : 'light'); });
 }
 /* ---------- boot ---------- */
+let studio;
 function boot() {
     try {
         history.scrollRestoration = 'manual';
@@ -1119,9 +1186,22 @@ function boot() {
     paintTheme(currentTheme());
     cacheEls();
     buildRoom();
+    studio = initStudio({
+        t, lang: () => lang, money, esc, reduced, colorsOf, theme: currentTheme,
+        openOverlay, requestClose: el => requestClose(el), addMany,
+        openCart: () => openOverlay($('#cart')), toast,
+        load: k => store.raw(k), save: (k, v) => store.set(k, v),
+    });
     bind();
     applyLang();
     observeReveals();
+    const openShared = () => { const m = location.hash.match(/^#studio=([\w.~-]{1,2000})$/); if (!m)
+        return; try {
+        history.replaceState(history.state, '', location.pathname + location.search);
+    }
+    catch { /* ignore */ } studio.open({ shared: m[1] }); };
+    openShared();
+    addEventListener('hashchange', openShared);
     if (reduced) {
         root.classList.add('reduced');
         updateRoomStatic();

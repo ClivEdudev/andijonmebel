@@ -7,6 +7,7 @@ Zero-dependency static site written in TypeScript, in Uzbek, Russian and English
 - Scroll-driven hero: an empty room furnishes itself, then shows the room's total and "add this whole room".
 - Category rail (pinned horizontal scroll), catalogue with filters, search, sorting and live colour swatches.
 - Cart (saved in the browser), dowry ("kelin sepi") bundles, 3-step checkout with delivery zones, date (dd/mm/yyyy), assembly and payment choice.
+- **Room studio** (header button, homepage section, "Try in a room" on every product and dowry set): a real-scale room where customers set the room width, walls, floor, window and day/evening light, drag furniture in, recolour, flip, duplicate, see distances to the walls in centimetres, undo/redo, share the room as a link, save a branded picture, and add everything to the cart in one tap. Code: `src/studio.ts`.
 - Light and dark themes (follows the phone/computer setting until the visitor picks one; the hero room turns into an evening scene).
 - Navbar links glide to sections with the scroll animations paused, so nothing replays on the way.
 - Orders are sent to **Netlify Forms** (form name `order`). Nothing is charged online; the manager calls to confirm.
