@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Robiya mebellari — Andijondagi mebel doʻkoni</title>
+<meta name="description" content="Robiya mebellari, Andijon: divan, karavot, oshxona, shkaf va kelin sepi toʻplamlari. Narxlar, onlayn buyurtma va yetkazib berish.">
+<meta name="theme-color" content="#19224A">
+<meta property="og:title" content="Robiya mebellari — Andijon">
+<meta property="og:description" content="Mebel katalogi, narxlar, onlayn buyurtma va yetkazib berish.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Unbounded:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="loader" aria-hidden="true">
+  <svg viewBox="0 0 120 120"><path class="draw" d="M34 20v80M86 20v80M34 30h52M34 62h52v-30M28 62h64M34 100l-6 0M86 100h6M40 62v38M80 62v38"/></svg>
+  <p>Robiya</p>
+</div>
+<div id="progress" aria-hidden="true"></div>
+
+<header class="top">
+  <a class="logo" href="#top" aria-label="Robiya mebellari">
+    <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 3l14 17-14 17L6 20z" fill="#19224A"/><path d="M20 12l7 8-7 8-7-8z" fill="#B8293F"/></svg>
+    <span><b>Robiya</b><small>mebellari</small></span>
+  </a>
+  <nav class="nav">
+    <a href="#catalog" data-i18n="nav.catalog">Katalog</a>
+    <a href="#sep" data-i18n="nav.sep">Kelin sepi</a>
+    <a href="#delivery" data-i18n="nav.delivery">Yetkazish</a>
+    <a href="#visit" data-i18n="nav.visit">Doʻkon</a>
+  </nav>
+  <div class="lang" role="group" aria-label="Til / Язык / Language">
+    <button data-lang="uz">UZ</button><button data-lang="ru">RU</button><button data-lang="en">EN</button>
+  </div>
+  <button class="cart-btn" id="cartBtn" data-i18n-aria="aria.cart" aria-label="Savat">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.2 11.2a2 2 0 0 1-2 1.8H8.2a2 2 0 0 1-2-1.8z M9 8V6a3 3 0 0 1 6 0v2" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+    <span id="cartCount" hidden>0</span>
+  </button>
+</header>
+
+<main>
+  <section class="hero" id="top">
+    <div class="hero-pin">
+      <div class="hero-copy">
+        <h1 class="hero-title" data-i18n="hero.title" data-split>Boʻsh xonadan shinam uygacha</h1>
+        <p class="hero-sub" data-i18n="hero.sub"></p>
+        <div class="ticker">
+          <div><span class="tk-label" data-i18n="hero.stageLabel"></span><span id="roomStage" class="tk-stage">—</span></div>
+          <div><span class="tk-label" data-i18n="hero.running"></span><span id="roomRunning" class="tk-num">0</span></div>
+        </div>
+        <div class="hero-cta">
+          <button id="addRoom" class="btn btn-pom"><span data-i18n="hero.addRoom"></span><span class="btn-sub" id="roomTotal"></span></button>
+          <a href="#catalog" class="btn btn-line" data-i18n="hero.browse"></a>
+        </div>
+      </div>
+      <div class="hero-stage"><svg id="room" viewBox="0 0 1200 760" role="img" aria-label="Robiya mebellari"></svg></div>
+      <p class="scroll-hint"><span class="mouse" aria-hidden="true"></span><span data-i18n="hero.scroll"></span></p>
+    </div>
+  </section>
+
+  <div class="marquee" aria-hidden="true"><div class="marquee-track" id="marqueeTrack"></div></div>
+
+  <section class="rail" id="rail">
+    <div class="rail-pin">
+      <div class="rail-head" data-reveal>
+        <h2 data-i18n="rail.title" data-split></h2>
+        <p data-i18n="rail.sub"></p>
+        <div class="rail-bar"><span id="railBar"></span></div>
+      </div>
+      <div class="rail-track" id="railTrack"></div>
+    </div>
+  </section>
+
+  <section class="catalog" id="catalog">
+    <div class="sec-head" data-reveal>
+      <h2 data-i18n="cat.title" data-split></h2>
+      <p class="note" data-i18n="cat.note"></p>
+    </div>
+    <div class="toolbar">
+      <div class="chips" id="chips"></div>
+      <div class="tools">
+        <label class="search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 16l5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><input id="search" type="search" data-i18n-ph="cat.search" data-i18n-aria="cat.search"></label>
+        <label class="sort"><span data-i18n="sort.label" class="sr"></span><select id="sort"><option value="pop" data-i18n="sort.pop"></option><option value="asc" data-i18n="sort.asc"></option><option value="desc" data-i18n="sort.desc"></option></select></label>
+        <span class="count" id="count"></span>
+      </div>
+    </div>
+    <div class="grid" id="grid"></div>
+    <p class="empty" id="empty" data-i18n="cat.emptyMsg" hidden></p>
+  </section>
+
+  <section class="sep" id="sep">
+    <div class="sec-head" data-reveal>
+      <h2 data-i18n="sep.title" data-split></h2>
+      <p data-i18n="sep.sub"></p>
+    </div>
+    <div class="bundles" id="sepList"></div>
+  </section>
+
+  <section class="delivery" id="delivery">
+    <div class="sec-head" data-reveal>
+      <h2 data-i18n="del.title" data-split></h2>
+      <p data-i18n="del.sub"></p>
+    </div>
+    <div class="road-wrap">
+      <svg class="road" viewBox="0 0 1000 260" aria-hidden="true">
+        <path id="road" d="M20 200 C160 200 180 70 330 80 S520 210 660 170 S860 50 980 90" fill="none" stroke="#2C376A" stroke-width="34" stroke-linecap="round"/>
+        <path d="M20 200 C160 200 180 70 330 80 S520 210 660 170 S860 50 980 90" fill="none" stroke="#4A5690" stroke-width="2" stroke-dasharray="14 14"/>
+        <path id="roadDone" d="M20 200 C160 200 180 70 330 80 S520 210 660 170 S860 50 980 90" fill="none" stroke="#B8293F" stroke-width="4" stroke-dasharray="1200" stroke-dashoffset="1200"/>
+        <g class="stop" transform="translate(40 200)"><circle r="16"/><text y="5">1</text></g>
+        <g class="stop" transform="translate(330 80)"><circle r="16"/><text y="5">2</text></g>
+        <g class="stop" transform="translate(655 172)"><circle r="16"/><text y="5">3</text></g>
+        <g class="stop" transform="translate(965 86)"><circle r="16"/><text y="5">4</text></g>
+        <g id="truck"><g transform="translate(-34 -46)">
+          <rect x="0" y="6" width="44" height="30" rx="4" fill="#F8F9F6"/><path d="M44 14h14l10 12v10H44z" fill="#B8293F"/><rect x="50" y="17" width="9" height="8" rx="1" fill="#9DBBD6"/>
+          <path d="M8 14l8 8 8-8 8 8" stroke="#19224A" stroke-width="2.5" fill="none"/>
+          <circle cx="14" cy="38" r="6" fill="#19224A" stroke="#F8F9F6" stroke-width="2"/><circle cx="56" cy="38" r="6" fill="#19224A" stroke="#F8F9F6" stroke-width="2"/>
+        </g></g>
+      </svg>
+    </div>
+    <ol class="steps">
+      <li><h3 data-i18n="step1.t"></h3><p data-i18n="step1.d"></p></li>
+      <li><h3 data-i18n="step2.t"></h3><p data-i18n="step2.d"></p></li>
+      <li><h3 data-i18n="step3.t"></h3><p data-i18n="step3.d"></p></li>
+      <li><h3 data-i18n="step4.t"></h3><p data-i18n="step4.d"></p></li>
+    </ol>
+    <div class="zones" data-reveal>
+      <h3 data-i18n="zone.title"></h3>
+      <ul id="zoneList"></ul>
+      <p class="note" data-i18n="zone.note"></p>
+    </div>
+  </section>
+
+  <section class="visit" id="visit">
+    <div class="visit-txt" data-reveal>
+      <h2 data-i18n="visit.title" data-split></h2>
+      <p data-i18n="visit.sub"></p>
+      <dl>
+        <div><dt data-i18n="visit.addr"></dt><dd><span data-i18n="visit.addrV"></span><br><a href="https://plus.codes/8JGJQ73M+GF" target="_blank" rel="noopener">8JGJQ73M+GF</a></dd></div>
+        <div><dt data-i18n="visit.hours"></dt><dd data-i18n="visit.hoursV"></dd></div>
+        <div><dt data-i18n="visit.phone"></dt><dd id="phone"></dd></div>
+      </dl>
+      <a class="btn btn-pom" href="https://www.google.com/maps/dir/?api=1&destination=40.75381,72.28369" target="_blank" rel="noopener" data-i18n="visit.route"></a>
+    </div>
+    <div class="map" data-reveal>
+      <iframe title="Robiya mebellari — map" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://maps.google.com/maps?q=40.75381,72.28369&z=16&output=embed"></iframe>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="foot-logo"><b>Robiya</b> mebellari</div>
+  <p><span data-i18n="foot.copy"></span>, 2026. <span data-i18n="foot.sample"></span></p>
+</footer>
+
+<aside class="drawer" id="cart" aria-hidden="true" aria-labelledby="cartTitle" role="dialog">
+  <div class="backdrop"></div>
+  <div class="drawer-panel">
+    <div class="drawer-head"><h2 id="cartTitle" data-i18n="cart.title"></h2><button class="close" data-i18n-aria="close" aria-label="Yopish">×</button></div>
+    <ul class="cart-list" id="cartList"></ul>
+    <div class="drawer-foot">
+      <p class="subtotal"><span data-i18n="cart.subtotal"></span><b id="cartSubtotal"></b></p>
+      <p class="hint" data-i18n="cart.note"></p>
+      <button class="btn btn-pom wide" id="toCheckout" data-i18n="cart.checkout"></button>
+    </div>
+  </div>
+</aside>
+
+<div class="modal" id="pmodal" aria-hidden="true" role="dialog" aria-labelledby="pmTitle">
+  <div class="backdrop"></div>
+  <div class="modal-panel pm"><button class="close" data-i18n-aria="close" aria-label="Yopish">×</button><div id="pmBody" class="pm-body"></div></div>
+</div>
+
+<div class="modal" id="checkout" aria-hidden="true" role="dialog" aria-labelledby="coTitle">
+  <div class="backdrop"></div>
+  <div class="modal-panel co">
+    <button class="close" data-i18n-aria="close" aria-label="Yopish">×</button>
+    <h2 id="coTitle" data-i18n="co.title"></h2>
+    <ol class="co-steps" id="coSteps"><li data-i18n="co.s1"></li><li data-i18n="co.s2"></li><li data-i18n="co.s3"></li></ol>
+    <div class="co-body" id="coBody"></div>
+    <div class="co-foot" id="coFoot">
+      <p class="co-err" id="coErr" role="alert"></p>
+      <div class="co-row"><button class="btn btn-line" id="coBack" data-i18n="co.back"></button><span class="co-total"><small data-i18n="co.totalLabel"></small><b id="coTotal"></b></span><button class="btn btn-pom" id="coNext"></button></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<!-- Netlify Forms registration (the order is posted from JavaScript) -->
+<form name="order" data-netlify="true" netlify-honeypot="bot-field" hidden>
+  <input name="bot-field"><input name="order_id"><input name="name"><input name="phone"><input name="zone"><input name="address"><input name="date">
+  <input name="assembly"><input name="payment"><textarea name="comment"></textarea><textarea name="items"></textarea><input name="subtotal"><input name="delivery"><input name="total"><input name="lang">
+</form>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

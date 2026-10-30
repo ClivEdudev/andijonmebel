@@ -1,0 +1,13 @@
+{
+  "name": "robiya-mebellari",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "build": "rm -rf dist && mkdir -p dist && cp -r public/. dist/ && tsc"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "private": true,
+  "type": "module"
+}
