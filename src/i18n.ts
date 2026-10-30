@@ -3,6 +3,7 @@ import type { Lang } from './data.js';
 type Dict = Record<string, string>;
 
 const uz: Dict = {
+  'aria.theme': 'Tungi rejim', 'aria.menu': 'Menyu', 'toast.max': 'Bitta mahsulotdan koʻpi bilan 20 ta', 'toast.full': 'Savat toʻldi. Avval buyurtma bering yoki keraksizini olib tashlang.', 'toast.cartChanged': 'Savat boshqa oynada oʻzgardi', 'err.emptyCart': 'Savat boʻsh.', 'err.timeout': 'Javob kelmadi. Internet sekin boʻlishi mumkin — qayta yuboring yoki doʻkonga qoʻngʻiroq qiling.',
   'meta.title': 'Robiya mebellari — Andijondagi mebel doʻkoni',
   cur: 'soʻm', cm: 'sm', free: 'Bepul', close: 'Yopish',
   'nav.catalog': 'Katalog', 'nav.sep': 'Kelin sepi', 'nav.delivery': 'Yetkazish', 'nav.visit': 'Doʻkon', 'aria.cart': 'Savat',
@@ -42,12 +43,13 @@ const uz: Dict = {
   'co.pay': 'Qanday toʻlaysiz?', 'pay.cash': 'Naqd pul', 'pay.cashHint': 'Mebelni qabul qilganingizda', 'pay.card': 'Karta orqali', 'pay.cardHint': 'Yetkazganda terminal orqali', 'pay.transfer': 'Click yoki Payme', 'pay.transferHint': 'Menejer tasdiqlagandan soʻng', 'pay.install': 'Boʻlib toʻlash', 'pay.installHint': 'Shartlari doʻkon bilan kelishiladi',
   'co.comment': 'Izoh (ixtiyoriy)', 'co.delivery': 'Yetkazish', 'co.total': 'Jami toʻlov', 'co.confirmHint': 'Hozir pul yechilmaydi. Menejer qoʻngʻiroq qilib, buyurtmani tasdiqlaydi.',
   'co.next': 'Davom etish', 'co.back': 'Orqaga', 'co.place': 'Buyurtmani yuborish', 'co.sending': 'Yuborilmoqda…', 'co.totalLabel': 'Jami',
-  'err.name': 'Ismingizni yozing.', 'err.phone': 'Telefon raqamini toʻliq kiriting: +998 va 9 ta raqam.', 'err.address': 'Yetkazish manzilini yozing.', 'err.send': 'Buyurtma yuborilmadi. Internetni tekshirib, qayta urinib koʻring yoki doʻkonga qoʻngʻiroq qiling.',
+  'err.name': 'Ismingizni harflar bilan yozing.', 'err.phone': 'Telefon raqamini toʻliq kiriting: +998 va 9 ta raqam.', 'err.address': 'Yetkazish manzilini toʻliq yozing.', 'err.send': 'Buyurtma yuborilmadi. Internetni tekshirib, qayta urinib koʻring yoki doʻkonga qoʻngʻiroq qiling.',
   'done.title': 'Buyurtma qabul qilindi', 'done.num': 'Buyurtma raqami:', 'done.text': 'Menejer tez orada qoʻngʻiroq qilib, tafsilotlarni tasdiqlaydi.',
   'wd.0': 'yakshanba', 'wd.1': 'dushanba', 'wd.2': 'seshanba', 'wd.3': 'chorshanba', 'wd.4': 'payshanba', 'wd.5': 'juma', 'wd.6': 'shanba',
 };
 
 const ru: Dict = {
+  'aria.theme': 'Тёмная тема', 'aria.menu': 'Меню', 'toast.max': 'Не больше 20 штук одного товара', 'toast.full': 'Корзина заполнена. Оформите заказ или удалите лишнее.', 'toast.cartChanged': 'Корзина изменилась в другой вкладке', 'err.emptyCart': 'Корзина пуста.', 'err.timeout': 'Нет ответа. Возможно, медленный интернет — отправьте ещё раз или позвоните в магазин.',
   'meta.title': 'Robiya mebellari — мебельный магазин в Андижане',
   cur: 'сум', cm: 'см', free: 'Бесплатно', close: 'Закрыть',
   'nav.catalog': 'Каталог', 'nav.sep': 'Сеп невесты', 'nav.delivery': 'Доставка', 'nav.visit': 'Магазин', 'aria.cart': 'Корзина',
@@ -87,12 +89,13 @@ const ru: Dict = {
   'co.pay': 'Как будете платить?', 'pay.cash': 'Наличными', 'pay.cashHint': 'При получении мебели', 'pay.card': 'Картой', 'pay.cardHint': 'Через терминал при доставке', 'pay.transfer': 'Click или Payme', 'pay.transferHint': 'После подтверждения менеджером', 'pay.install': 'Рассрочка', 'pay.installHint': 'Условия согласуются с магазином',
   'co.comment': 'Комментарий (необязательно)', 'co.delivery': 'Доставка', 'co.total': 'К оплате', 'co.confirmHint': 'Сейчас деньги не списываются. Менеджер позвонит и подтвердит заказ.',
   'co.next': 'Далее', 'co.back': 'Назад', 'co.place': 'Отправить заказ', 'co.sending': 'Отправляем…', 'co.totalLabel': 'Итого',
-  'err.name': 'Укажите имя.', 'err.phone': 'Введите номер полностью: +998 и 9 цифр.', 'err.address': 'Укажите адрес доставки.', 'err.send': 'Заказ не отправлен. Проверьте интернет и попробуйте снова или позвоните в магазин.',
+  'err.name': 'Укажите имя буквами.', 'err.phone': 'Введите номер полностью: +998 и 9 цифр.', 'err.address': 'Укажите полный адрес доставки.', 'err.send': 'Заказ не отправлен. Проверьте интернет и попробуйте снова или позвоните в магазин.',
   'done.title': 'Заказ принят', 'done.num': 'Номер заказа:', 'done.text': 'Менеджер скоро позвонит и подтвердит детали.',
   'wd.0': 'воскресенье', 'wd.1': 'понедельник', 'wd.2': 'вторник', 'wd.3': 'среда', 'wd.4': 'четверг', 'wd.5': 'пятница', 'wd.6': 'суббота',
 };
 
 const en: Dict = {
+  'aria.theme': 'Dark theme', 'aria.menu': 'Menu', 'toast.max': 'Up to 20 of one item', 'toast.full': 'Your cart is full. Check out or remove something first.', 'toast.cartChanged': 'Your cart changed in another tab', 'err.emptyCart': 'Your cart is empty.', 'err.timeout': 'No response. Your connection may be slow — send again or call the store.',
   'meta.title': 'Robiya mebellari — furniture store in Andijan',
   cur: 'UZS', cm: 'cm', free: 'Free', close: 'Close',
   'nav.catalog': 'Catalogue', 'nav.sep': 'Dowry sets', 'nav.delivery': 'Delivery', 'nav.visit': 'Store', 'aria.cart': 'Cart',
@@ -132,7 +135,7 @@ const en: Dict = {
   'co.pay': 'How will you pay?', 'pay.cash': 'Cash', 'pay.cashHint': 'When you receive the furniture', 'pay.card': 'Card', 'pay.cardHint': 'By terminal on delivery', 'pay.transfer': 'Click or Payme', 'pay.transferHint': 'After the manager confirms', 'pay.install': 'Instalments', 'pay.installHint': 'Terms agreed with the store',
   'co.comment': 'Comment (optional)', 'co.delivery': 'Delivery', 'co.total': 'Total to pay', 'co.confirmHint': 'Nothing is charged now. A manager will call to confirm the order.',
   'co.next': 'Continue', 'co.back': 'Back', 'co.place': 'Send order', 'co.sending': 'Sending…', 'co.totalLabel': 'Total',
-  'err.name': 'Enter your name.', 'err.phone': 'Enter the full number: +998 and 9 digits.', 'err.address': 'Enter the delivery address.', 'err.send': 'The order wasn’t sent. Check your connection and try again, or call the store.',
+  'err.name': 'Enter your name using letters.', 'err.phone': 'Enter the full number: +998 and 9 digits.', 'err.address': 'Enter the full delivery address.', 'err.send': 'The order wasn’t sent. Check your connection and try again, or call the store.',
   'done.title': 'Order received', 'done.num': 'Order number:', 'done.text': 'A manager will call soon to confirm the details.',
   'wd.0': 'Sunday', 'wd.1': 'Monday', 'wd.2': 'Tuesday', 'wd.3': 'Wednesday', 'wd.4': 'Thursday', 'wd.5': 'Friday', 'wd.6': 'Saturday',
 };

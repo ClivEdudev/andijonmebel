@@ -207,11 +207,11 @@ export function coffeetable(c: Colors): string {
 
 // Decor used only in the hero room scene
 export const decor = {
-  lamp: () => `<path d="M0 0 h60 l-14 -56 h-32z" fill="#DCCDB3" transform="translate(-30 0)"/><rect x="-3" y="0" width="6" height="200" fill="#19224A"/><ellipse cx="0" cy="202" rx="36" ry="7" fill="#19224A"/>`,
+  lamp: () => `<ellipse class="glow" cx="0" cy="-20" rx="120" ry="110" fill="url(#lampGlow)"/><path d="M0 0 h60 l-14 -56 h-32z" fill="#DCCDB3" transform="translate(-30 0)"/><rect x="-3" y="0" width="6" height="200" fill="#19224A"/><ellipse cx="0" cy="202" rx="36" ry="7" fill="#19224A"/>`,
   plant: () => `<path d="M-34 0 h68 l-10 70 h-48z" fill="#B8293F"/><path d="M0 0 q-50 -40 -38 -110 q30 30 38 110 q4 -90 44 -130 q14 70 -44 130 q-20 -60 4 -150 q22 60 -4 150" fill="#5E7D5A"/>`,
   art: () => `<rect x="-90" y="-60" width="180" height="120" fill="#F8F9F6" stroke="#7A4A2A" stroke-width="8"/><path d="M-70 40 l40 -50 l30 30 l24 -24 l46 44z" fill="#9FB0A0"/><circle cx="40" cy="-22" r="14" fill="#B8293F"/>`,
   rug: () => `<ellipse cx="0" cy="0" rx="330" ry="46" fill="#B8293F" opacity=".9"/><ellipse cx="0" cy="0" rx="300" ry="36" fill="none" stroke="#DCCDB3" stroke-width="3" stroke-dasharray="14 10"/><ellipse cx="0" cy="0" rx="260" ry="26" fill="none" stroke="#19224A" stroke-width="2"/>`,
-  pendant: () => `<rect x="-1.5" y="-400" width="3" height="400" fill="#19224A"/><path d="M-50 40 q50 -80 100 0z" fill="#19224A"/><ellipse cx="0" cy="44" rx="20" ry="6" fill="#F2D27A"/>`,
+  pendant: () => `<path class="glow" d="M-30 44 L-260 420 Q0 470 260 420 L30 44z" fill="url(#coneGlow)"/><rect x="-1.5" y="-400" width="3" height="400" fill="#19224A"/><path d="M-50 40 q50 -80 100 0z" fill="#19224A"/><ellipse cx="0" cy="44" rx="20" ry="6" fill="#F2D27A"/>`,
 };
 
 export type ArtType = 'sofa' | 'sofaWide' | 'armchair' | 'bed' | 'bedset' | 'wardrobe3' | 'wardrobe4' | 'dresser' | 'dining' | 'chair'

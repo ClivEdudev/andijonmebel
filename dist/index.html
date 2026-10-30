@@ -5,7 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Robiya mebellari — Andijondagi mebel doʻkoni</title>
 <meta name="description" content="Robiya mebellari, Andijon: divan, karavot, oshxona, shkaf va kelin sepi toʻplamlari. Narxlar, onlayn buyurtma va yetkazib berish.">
-<meta name="theme-color" content="#19224A">
+<meta name="theme-color" content="#EDEFEA">
+<meta name="color-scheme" content="light dark">
+<script src="js/theme-init.js"></script>
+<noscript><style>#loader{display:none!important}.noscript{display:block!important}</style></noscript>
 <meta property="og:title" content="Robiya mebellari — Andijon">
 <meta property="og:description" content="Mebel katalogi, narxlar, onlayn buyurtma va yetkazib berish.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -20,21 +23,34 @@
   <p>Robiya</p>
 </div>
 <div id="progress" aria-hidden="true"></div>
+<p class="noscript">Saytdan toʻliq foydalanish uchun brauzerda JavaScript-ni yoqing. · Включите JavaScript, чтобы пользоваться сайтом. · Please turn on JavaScript to use this site.</p>
 
 <header class="top">
   <a class="logo" href="#top" aria-label="Robiya mebellari">
-    <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 3l14 17-14 17L6 20z" fill="#19224A"/><path d="M20 12l7 8-7 8-7-8z" fill="#B8293F"/></svg>
+    <svg viewBox="0 0 40 40" aria-hidden="true"><path class="logo-out" d="M20 3l14 17-14 17L6 20z"/><path d="M20 12l7 8-7 8-7-8z" fill="#B8293F"/></svg>
     <span><b>Robiya</b><small>mebellari</small></span>
   </a>
-  <nav class="nav">
-    <a href="#catalog" data-i18n="nav.catalog">Katalog</a>
-    <a href="#sep" data-i18n="nav.sep">Kelin sepi</a>
-    <a href="#delivery" data-i18n="nav.delivery">Yetkazish</a>
-    <a href="#visit" data-i18n="nav.visit">Doʻkon</a>
-  </nav>
-  <div class="lang" role="group" aria-label="Til / Язык / Language">
-    <button data-lang="uz">UZ</button><button data-lang="ru">RU</button><button data-lang="en">EN</button>
+  <div class="menu" id="menu">
+    <nav class="nav">
+      <a href="#catalog" data-i18n="nav.catalog">Katalog</a>
+      <a href="#sep" data-i18n="nav.sep">Kelin sepi</a>
+      <a href="#delivery" data-i18n="nav.delivery">Yetkazish</a>
+      <a href="#visit" data-i18n="nav.visit">Doʻkon</a>
+    </nav>
+    <div class="lang" role="group" aria-label="Til / Язык / Language">
+      <button data-lang="uz">UZ</button><button data-lang="ru">RU</button><button data-lang="en">EN</button>
+    </div>
   </div>
+  <button class="icon-btn theme-btn" id="themeBtn" data-i18n-aria="aria.theme" aria-label="Tungi rejim" aria-pressed="false">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <mask id="moonMask"><rect width="24" height="24" fill="#fff"/><circle class="tm-bite" cx="24" cy="4" r="7" fill="#000"/></mask>
+      <circle class="tm-core" cx="12" cy="12" r="5" fill="currentColor" mask="url(#moonMask)"/>
+      <g class="tm-rays" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 1.5v2.5M12 20v2.5M1.5 12h2.5M20 12h2.5M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8"/></g>
+    </svg>
+  </button>
+  <button class="icon-btn menu-btn" id="menuBtn" data-i18n-aria="aria.menu" aria-label="Menyu" aria-expanded="false" aria-controls="menu">
+    <span aria-hidden="true"></span>
+  </button>
   <button class="cart-btn" id="cartBtn" data-i18n-aria="aria.cart" aria-label="Savat">
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.2 11.2a2 2 0 0 1-2 1.8H8.2a2 2 0 0 1-2-1.8z M9 8V6a3 3 0 0 1 6 0v2" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
     <span id="cartCount" hidden>0</span>
