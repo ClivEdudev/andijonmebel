@@ -1,4 +1,9 @@
 const uz = {
+    'cur.view': 'Koʻrish',
+    'cur.try': 'Sinab koʻrish',
+    'cur.open': 'Ochish',
+    'cur.add': 'Qoʻshish',
+    'search.clear': 'Qidiruvni tozalash',
     'studio.done': 'Tayyor',
     'm': 'm',
     'nav.studio': 'Xona studiyasi',
@@ -118,6 +123,11 @@ const uz = {
     'wd.0': 'yakshanba', 'wd.1': 'dushanba', 'wd.2': 'seshanba', 'wd.3': 'chorshanba', 'wd.4': 'payshanba', 'wd.5': 'juma', 'wd.6': 'shanba',
 };
 const ru = {
+    'cur.view': 'Смотреть',
+    'cur.try': 'Попробовать',
+    'cur.open': 'Открыть',
+    'cur.add': 'Добавить',
+    'search.clear': 'Очистить поиск',
     'studio.done': 'Готово',
     'm': 'м',
     'nav.studio': 'Студия комнаты',
@@ -237,6 +247,11 @@ const ru = {
     'wd.0': 'воскресенье', 'wd.1': 'понедельник', 'wd.2': 'вторник', 'wd.3': 'среда', 'wd.4': 'четверг', 'wd.5': 'пятница', 'wd.6': 'суббота',
 };
 const en = {
+    'cur.view': 'View',
+    'cur.try': 'Try it',
+    'cur.open': 'Open',
+    'cur.add': 'Add',
+    'search.clear': 'Clear search',
     'studio.done': 'Done',
     'm': 'm',
     'nav.studio': 'Room studio',

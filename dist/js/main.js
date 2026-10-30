@@ -2,6 +2,7 @@ import { draw, drawInner, decor } from './art.js';
 import { CATS, PRODUCTS, PRODUCT, SEP, bundleFull, ROOM_SET, ZONES, ASSEMBLY_FEE, STORE } from './data.js';
 import { DICT } from './i18n.js';
 import { initStudio } from './studio.js';
+import { enhanceSelects, syncDropdowns, initTips, initCursor } from './ui.js';
 /* ---------- helpers ---------- */
 const $ = (s, root = document) => root.querySelector(s);
 const $$ = (s, root = document) => Array.from(root.querySelectorAll(s));
@@ -140,6 +141,7 @@ function applyLang() {
     if (!reduced)
         syncScene();
     studio?.refresh();
+    syncDropdowns();
 }
 const cOf = (id) => colorsOf(PRODUCT(id), 0);
 const PIECES = [
@@ -251,7 +253,7 @@ function renderChips() {
     const chips = [{ id: 'all', label: t('cat.all') }, ...CATS.map(c => ({ id: c.id, label: c.name[lang] }))];
     $('#chips').innerHTML = chips.map(c => `<button class="chip" data-cat="${c.id}" aria-pressed="${view.cat === c.id}">${esc(c.label)}</button>`).join('');
 }
-const swatchesHTML = (p, i) => `<div class="swatches${''}" role="radiogroup" aria-label="${t('card.color')}">${p.swatches.map((s, k) => `<button class="sw" role="radio" aria-checked="${k === i}" aria-label="${s.name[lang]}" title="${s.name[lang]}" data-sw="${p.id}:${k}" style="--c:${s.m}"></button>`).join('')}</div>`;
+const swatchesHTML = (p, i) => `<div class="swatches${''}" role="radiogroup" aria-label="${t('card.color')}">${p.swatches.map((s, k) => `<button class="sw" role="radio" aria-checked="${k === i}" aria-label="${s.name[lang]}" data-tip="${s.name[lang]}" data-sw="${p.id}:${k}" style="--c:${s.m}"></button>`).join('')}</div>`;
 function cardHTML(p) {
     const i = sel[p.id] ?? 0;
     const cat = CATS.find(c => c.id === p.cat);
@@ -673,6 +675,8 @@ function renderCheckout() {
     ${assemblyFee() ? `<p><span>${t('co.asmShort')}</span><span>${money(ASSEMBLY_FEE)}</span></p>` : ''}
     <p class="sum-total"><span>${t('co.total')}</span><b>${money(total())}</b></p></div>
     <p class="hint">${t('co.confirmHint')}</p>`;
+    if (s === 2)
+        enhanceSelects(body);
     if (s === 4)
         return;
     $('#coBack').hidden = s === 1;
@@ -895,6 +899,14 @@ function bind() {
             }
             return;
         }
+        if (tg.closest('.search-clear')) {
+            const i = $('#search');
+            i.value = '';
+            view.q = '';
+            renderGrid();
+            i.focus();
+            return;
+        }
         if (tg.closest('#themeBtn')) {
             setTheme(currentTheme() === 'dark' ? 'light' : 'dark', $('#themeBtn'));
             return;
@@ -1058,7 +1070,9 @@ function bind() {
         }
         const cl = tg.closest('.close, .backdrop');
         if (cl) {
-            requestClose(cl.closest('.modal, .drawer'));
+            const ov = cl.closest('.modal, .drawer, .studio');
+            if (ov)
+                requestClose(ov);
             return;
         }
         const nav = tg.closest('a[href^="#"]');
@@ -1195,6 +1209,10 @@ function boot() {
     bind();
     applyLang();
     observeReveals();
+    enhanceSelects();
+    syncDropdowns();
+    initTips();
+    initCursor(t);
     const openShared = () => { const m = location.hash.match(/^#studio=([\w.~-]{1,2000})$/); if (!m)
         return; try {
         history.replaceState(history.state, '', location.pathname + location.search);

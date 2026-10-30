@@ -3,6 +3,11 @@ import type { Lang } from './data.js';
 type Dict = Record<string, string>;
 
 const uz: Dict = {
+  'cur.view': 'Koʻrish',
+  'cur.try': 'Sinab koʻrish',
+  'cur.open': 'Ochish',
+  'cur.add': 'Qoʻshish',
+  'search.clear': 'Qidiruvni tozalash',
   'studio.done': 'Tayyor',
   'm': 'm',
   'nav.studio': 'Xona studiyasi',
@@ -123,6 +128,11 @@ const uz: Dict = {
 };
 
 const ru: Dict = {
+  'cur.view': 'Смотреть',
+  'cur.try': 'Попробовать',
+  'cur.open': 'Открыть',
+  'cur.add': 'Добавить',
+  'search.clear': 'Очистить поиск',
   'studio.done': 'Готово',
   'm': 'м',
   'nav.studio': 'Студия комнаты',
@@ -243,6 +253,11 @@ const ru: Dict = {
 };
 
 const en: Dict = {
+  'cur.view': 'View',
+  'cur.try': 'Try it',
+  'cur.open': 'Open',
+  'cur.add': 'Add',
+  'search.clear': 'Clear search',
   'studio.done': 'Done',
   'm': 'm',
   'nav.studio': 'Room studio',

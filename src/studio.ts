@@ -340,8 +340,8 @@ export function initStudio(api: StudioApi) {
     const meta = it.product ? `${api.money(it.product.price)} · ${it.w} × ${it.d} ${t('cm')}` : `${t('studio.decorFree')} · ${it.w} ${t('cm')}`;
     tool.innerHTML = `<div class="st-tool-head"><b>${api.esc(it.name[L()])}</b><span>${meta}</span></div>
       ${it.w > state.w ? `<p class="st-warn">${t('studio.tooWide')}</p>` : ''}
-      <div class="st-tool-row"><div class="swatches" role="radiogroup" aria-label="${t('card.color')}">${it.sw.map((s, k) => `<button class="sw" role="radio" aria-checked="${k === p.c}" aria-label="${s.name[L()]}" title="${s.name[L()]}" data-st-sw="${k}" style="--c:${s.m}"></button>`).join('')}</div>
-      <div class="st-tool-btns"><button data-st-act="flip" title="${t('studio.flip')}" aria-label="${t('studio.flip')}">${ICON.flip}</button><button data-st-act="dup" title="${t('studio.dup')}" aria-label="${t('studio.dup')}">${ICON.dup}</button><button data-st-act="del" class="danger" title="${t('studio.del')}" aria-label="${t('studio.del')}">${ICON.del}</button><button data-st-act="done" class="ok" title="${t('studio.done')}" aria-label="${t('studio.done')}">${ICON.done}</button></div></div>`;
+      <div class="st-tool-row"><div class="swatches" role="radiogroup" aria-label="${t('card.color')}">${it.sw.map((s, k) => `<button class="sw" role="radio" aria-checked="${k === p.c}" aria-label="${s.name[L()]}" data-tip="${s.name[L()]}" data-st-sw="${k}" style="--c:${s.m}"></button>`).join('')}</div>
+      <div class="st-tool-btns"><button data-st-act="flip" data-tip="${t('studio.flip')}" aria-label="${t('studio.flip')}">${ICON.flip}</button><button data-st-act="dup" data-tip="${t('studio.dup')}" aria-label="${t('studio.dup')}">${ICON.dup}</button><button data-st-act="del" class="danger" data-tip="${t('studio.del')}" aria-label="${t('studio.del')}">${ICON.del}</button><button data-st-act="done" class="ok" data-tip="${t('studio.done')}" aria-label="${t('studio.done')}">${ICON.done}</button></div></div>`;
     tool.hidden = false; positionTool();
   }
   const mq = matchMedia('(max-width: 980px)');
@@ -506,15 +506,15 @@ export function initStudio(api: StudioApi) {
     const cats = [{ id: 'all', n: t('cat.all') }, ...CATS.map(c => ({ id: c.id, n: c.name[L()] })), { id: 'decor', n: t('studio.decor') }];
     document.getElementById('stCats')!.innerHTML = cats.map(c => `<button class="chip" data-st-cat="${c.id}" aria-pressed="${palCat === c.id}">${api.esc(c.n)}</button>`).join('');
     const list = [...ITEMS.values()].filter(it => palCat === 'all' || it.cat === palCat);
-    grid.innerHTML = list.map(it => `<button class="st-item" data-st-add="${it.id}" title="${api.esc(it.name[L()])}"><span class="st-thumb">${it.thumb(0)}</span><span class="st-name">${api.esc(it.name[L()])}</span><span class="st-meta">${it.w} ${t('cm')}${it.product ? ` · <b>${api.money(it.product.price)}</b>` : ''}</span></button>`).join('');
+    grid.innerHTML = list.map(it => `<button class="st-item" data-st-add="${it.id}"><span class="st-thumb">${it.thumb(0)}</span><span class="st-name">${api.esc(it.name[L()])}</span><span class="st-meta">${it.w} ${t('cm')}${it.product ? ` · <b>${api.money(it.product.price)}</b>` : ''}</span></button>`).join('');
   }
   function renderRoomPanel() {
     const panel = document.getElementById('stPanelRoom')!;
     const hasLamp = state.ps.some(p => item(p.id).lamp);
     panel.innerHTML = `
       <div class="st-field"><label class="st-label" for="stW"><span>${t('studio.width')}</span><output id="stWOut">${fmtLen(state.w)}</output></label>
-        <input type="range" id="stW" min="250" max="700" step="10" value="${state.w}"><div class="st-scale"><span>2,5 ${t('m')}</span><span>7 ${t('m')}</span></div></div>
-      <div class="st-field"><span class="st-label">${t('studio.wall')}</span><div class="st-walls" role="radiogroup" aria-label="${t('studio.wall')}">${WALLS.map((c, i) => `<button class="sw" role="radio" aria-checked="${state.wall === i}" data-st-wall="${i}" style="--c:${c}" aria-label="${t('studio.wall' + i)}" title="${t('studio.wall' + i)}"></button>`).join('')}</div></div>
+        <input type="range" id="stW" min="250" max="700" step="10" value="${state.w}" style="--pct:${((state.w - 250) / 4.5).toFixed(1)}%"><div class="st-scale"><span>2,5 ${t('m')}</span><span>7 ${t('m')}</span></div></div>
+      <div class="st-field"><span class="st-label">${t('studio.wall')}</span><div class="st-walls" role="radiogroup" aria-label="${t('studio.wall')}">${WALLS.map((c, i) => `<button class="sw" role="radio" aria-checked="${state.wall === i}" data-st-wall="${i}" style="--c:${c}" aria-label="${t('studio.wall' + i)}" data-tip="${t('studio.wall' + i)}"></button>`).join('')}</div></div>
       <div class="st-field"><span class="st-label">${t('studio.floor')}</span><div class="st-floors" role="radiogroup" aria-label="${t('studio.floor')}">${FLOORS.map((f, i) => `<button role="radio" aria-checked="${state.floor === i}" data-st-floor="${i}"><i style="--c:${f.b};--l:${f.l}" class="fl-${f.k}"></i>${t('studio.floor' + i)}</button>`).join('')}</div></div>
       <div class="st-field"><span class="st-label">${t('studio.window')}</span><div class="st-seg" role="radiogroup" aria-label="${t('studio.window')}">${(['l', 'r', 'n'] as Win[]).map(w => `<button role="radio" aria-checked="${state.win === w}" data-st-win="${w}">${t('studio.win' + w.toUpperCase())}</button>`).join('')}</div></div>
       <div class="st-field"><span class="st-label">${t('studio.light')}</span><div class="st-seg" role="radiogroup" aria-label="${t('studio.light')}"><button role="radio" aria-checked="${!state.eve}" data-st-eve="0">${t('studio.day')}</button><button role="radio" aria-checked="${state.eve}" data-st-eve="1">${t('studio.eve')}</button></div>
@@ -525,7 +525,7 @@ export function initStudio(api: StudioApi) {
   /** Reflect the current room in the panel without rebuilding it (keeps keyboard focus where it is). */
   function syncPanel() {
     const P = document.getElementById('stPanelRoom')!; if (!P.firstElementChild) { renderRoomPanel(); return; }
-    const w = P.querySelector('#stW') as HTMLInputElement | null; if (w && document.activeElement !== w) w.value = String(state.w);
+    const w = P.querySelector('#stW') as HTMLInputElement | null; if (w && document.activeElement !== w) { w.value = String(state.w); w.style.setProperty('--pct', `${((state.w - 250) / 4.5).toFixed(1)}%`); }
     const o = P.querySelector('#stWOut'); if (o) o.textContent = fmtLen(state.w);
     P.querySelectorAll<HTMLElement>('[data-st-wall]').forEach(b => b.setAttribute('aria-checked', String(+b.dataset.stWall! === state.wall)));
     P.querySelectorAll<HTMLElement>('[data-st-floor]').forEach(b => b.setAttribute('aria-checked', String(+b.dataset.stFloor! === state.floor)));
@@ -567,7 +567,7 @@ export function initStudio(api: StudioApi) {
   rootEl.addEventListener('input', e => {
     const el = e.target as HTMLInputElement; if (el.id !== 'stW') return;
     if (!wBefore) wBefore = snap();
-    state.w = +el.value; state.ps.forEach(p => clampPiece(p, state.w));
+    state.w = +el.value; el.style.setProperty('--pct', `${((state.w - 250) / 4.5).toFixed(1)}%`); state.ps.forEach(p => clampPiece(p, state.w));
     (document.getElementById('stWOut') as HTMLOutputElement).textContent = fmtLen(state.w);
     buildRoom(); state.ps.forEach(p => els.get(p.u)?.setAttribute('transform', tfOf(p))); glows();
     const p = pieceOf(selected); if (p) { drawSel(p); renderTool(); }

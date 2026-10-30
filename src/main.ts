@@ -2,6 +2,7 @@ import { draw, drawInner, decor, type Colors } from './art.js';
 import { CATS, PRODUCTS, PRODUCT, SEP, bundleFull, ROOM_SET, ZONES, ASSEMBLY_FEE, STORE, type Lang, type Product, type CatId } from './data.js';
 import { DICT } from './i18n.js';
 import { initStudio } from './studio.js';
+import { enhanceSelects, syncDropdowns, initTips, initCursor } from './ui.js';
 
 /* ---------- helpers ---------- */
 const $ = <T extends Element = HTMLElement>(s: string, root: ParentNode = document) => root.querySelector(s) as T;
@@ -105,6 +106,7 @@ function applyLang() {
   if (openProduct) renderProductModal(openProduct);
   layout(); if (!reduced) syncScene();
   studio?.refresh();
+  syncDropdowns();
 }
 
 /* ---------- hero room ---------- */
@@ -203,7 +205,7 @@ function renderChips() {
   const chips = [{ id: 'all', label: t('cat.all') }, ...CATS.map(c => ({ id: c.id, label: c.name[lang] }))];
   $('#chips').innerHTML = chips.map(c => `<button class="chip" data-cat="${c.id}" aria-pressed="${view.cat === c.id}">${esc(c.label)}</button>`).join('');
 }
-const swatchesHTML = (p: Product, i: number) => `<div class="swatches${''}" role="radiogroup" aria-label="${t('card.color')}">${p.swatches.map((s, k) => `<button class="sw" role="radio" aria-checked="${k === i}" aria-label="${s.name[lang]}" title="${s.name[lang]}" data-sw="${p.id}:${k}" style="--c:${s.m}"></button>`).join('')}</div>`;
+const swatchesHTML = (p: Product, i: number) => `<div class="swatches${''}" role="radiogroup" aria-label="${t('card.color')}">${p.swatches.map((s, k) => `<button class="sw" role="radio" aria-checked="${k === i}" aria-label="${s.name[lang]}" data-tip="${s.name[lang]}" data-sw="${p.id}:${k}" style="--c:${s.m}"></button>`).join('')}</div>`;
 function cardHTML(p: Product) {
   const i = sel[p.id] ?? 0; const cat = CATS.find(c => c.id === p.cat)!;
   return `<button class="card-art" data-open="${p.id}" aria-label="${esc(p.name[lang])}: ${t('card.details')}"><span class="card-tilt">${draw(p.art, colorsOf(p, i), p.name[lang])}</span></button>
@@ -495,6 +497,7 @@ function renderCheckout() {
     ${assemblyFee() ? `<p><span>${t('co.asmShort')}</span><span>${money(ASSEMBLY_FEE)}</span></p>` : ''}
     <p class="sum-total"><span>${t('co.total')}</span><b>${money(total())}</b></p></div>
     <p class="hint">${t('co.confirmHint')}</p>`;
+  if (s === 2) enhanceSelects(body);
   if (s === 4) return;
   $('#coBack').hidden = s === 1;
   $('#coNext').textContent = s === 3 ? t('co.place') : t('co.next');
@@ -641,6 +644,7 @@ function bind() {
   document.addEventListener('click', e => {
     const tg = e.target as HTMLElement;
     const langBtn = tg.closest<HTMLElement>('.lang button'); if (langBtn) { const l = langBtn.dataset.lang; if (isLang(l) && l !== lang) { lang = l; store.set('rm-lang', lang); applyLang(); } return; }
+    if (tg.closest('.search-clear')) { const i = $('#search') as HTMLInputElement; i.value = ''; view.q = ''; renderGrid(); i.focus(); return; }
     if (tg.closest('#themeBtn')) { setTheme(currentTheme() === 'dark' ? 'light' : 'dark', $('#themeBtn')); return; }
     const so = tg.closest<HTMLElement>('[data-studio], [data-studio-preset]');
     if (so) {
@@ -676,7 +680,7 @@ function bind() {
     if (tg.closest('#toCheckout')) { if (!cart.length) return; closeOverlay($('#cart'), false); order.step = 1; $('#coFoot').hidden = false; renderCheckout(); openOverlay($('#checkout'), true); return; }
     if (tg.closest('#coBack')) { if (submitting) return; captureFields(); order.step = Math.max(1, order.step - 1); renderCheckout(); return; }
     if (tg.closest('#coNext')) { if (submitting) return; const err = readStep(); if (err) { $('#coErr').textContent = err; return; } if (order.step === 3) { placeOrder(); return; } order.step++; renderCheckout(); $('#coBody').scrollTop = 0; ($('#coBody input, #coBody select') as HTMLElement | null)?.focus({ preventScroll: true }); return; }
-    const cl = tg.closest<HTMLElement>('.close, .backdrop'); if (cl) { requestClose(cl.closest('.modal, .drawer') as HTMLElement); return; }
+    const cl = tg.closest<HTMLElement>('.close, .backdrop'); if (cl) { const ov = cl.closest<HTMLElement>('.modal, .drawer, .studio'); if (ov) requestClose(ov); return; }
     const nav = tg.closest<HTMLAnchorElement>('a[href^="#"]');
     if (nav) {
       const href = nav.getAttribute('href')!; if (href.length < 2) return; e.preventDefault();
@@ -744,6 +748,7 @@ function boot() {
     load: k => store.raw(k), save: (k, v) => store.set(k, v),
   });
   bind(); applyLang(); observeReveals();
+  enhanceSelects(); syncDropdowns(); initTips(); initCursor(t);
   const openShared = () => { const m = location.hash.match(/^#studio=([\w.~-]{1,2000})$/); if (!m) return; try { history.replaceState(history.state, '', location.pathname + location.search); } catch { /* ignore */ } studio.open({ shared: m[1] }); };
   openShared(); addEventListener('hashchange', openShared);
   if (reduced) { root.classList.add('reduced'); updateRoomStatic(); }
